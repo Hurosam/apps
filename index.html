@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisión de Código Android</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .code-container {
+            background-color: #2d2d2d; /* Color de fondo oscuro para el bloque de código */
+            color: #cccccc; /* Color de texto claro para el código */
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto; /* Para scroll horizontal si el código es muy largo */
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        .code-container pre {
+            margin: 0;
+            white-space: pre-wrap; /* Mantiene los espacios y saltos de línea, y ajusta líneas largas */
+            word-wrap: break-word; /* Evita que palabras muy largas rompan el layout */
+        }
+        .keyword { color: #cc7832; font-weight: bold; }
+        .type { color: #6897bb; }
+        .string { color: #6a8759; }
+        .comment { color: #808080; font-style: italic; }
+        .method { color: #ffc66d; }
+        .number { color: #6897bb; }
+        .annotation { color: #bbb529; }
+
+        .class-declaration-highlight {
+            background-color: #4a4a4a;
+            border: 1px solid #666666;
+            padding: 5px 8px;
+            display: inline-block;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .intro-text {
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #555;
+        }
+        /* XML specific styles */
+        .xml-tag { color: #e83e8c; font-weight: bold; } /* Pinkish for tags */
+        .xml-attr-name { color: #6f42c1; } /* Purple for attribute names */
+        /* .string class can be reused for XML attribute values */
+    </style>
+</head>
+<body>
+
+    <h1>Ejemplos de Código Android</h1>
+
+    <h2>MainActivity</h2>
+    <p class="intro-text">Recopila datos del usuario y navega a otras Activities.</p>
+    <div class="code-container">
+        <pre><code><span class="keyword">import</span> <span class="type">android.content.Intent</span>;
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.view.View</span>;
+<span class="keyword">import</span> <span class="type">android.widget.EditText</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+    <span class="type">EditText</span> nombre, edad;
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+        nombre = <span class="method">findViewById</span>(<span class="type">R</span>.id.nombre);
+        edad = <span class="method">findViewById</span>(<span class="type">R</span>.id.edad);
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">procesar</span>(<span class="type">View</span> view) {
+        <span class="type">String</span> nombree = nombre.<span class="method">getText</span>().<span class="method">toString</span>();
+        <span class="type">String</span> edadd = edad.<span class="method">getText</span>().<span class="method">toString</span>();
+        <span class="type">Intent</span> intent = <span class="keyword">new</span> <span class="type">Intent</span>(<span class="type">MainActivity</span>.<span class="keyword">this</span>, <span class="type">MainActivity2</span>.<span class="keyword">class</span>);
+        intent.<span class="method">putExtra</span>(<span class="string">"nombree"</span>, nombree);
+        intent.<span class="method">putExtra</span>(<span class="string">"edadd"</span>, edadd);
+        <span class="method">startActivity</span>(intent);
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">m4</span>(<span class="type">View</span> view) {
+        <span class="type">Intent</span> intent = <span class="keyword">new</span> <span class="type">Intent</span>(<span class="type">MainActivity</span>.<span class="keyword">this</span>, <span class="type">MainActivity4</span>.<span class="keyword">class</span>);
+        <span class="method">startActivity</span>(intent);
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">m5</span>(<span class="type">View</span> view) {
+        <span class="type">Intent</span> intent = <span class="keyword">new</span> <span class="type">Intent</span>(<span class="type">MainActivity</span>.<span class="keyword">this</span>, <span class="type">MainActivity5</span>.<span class="keyword">class</span>);
+        <span class="method">startActivity</span>(intent);
+    }
+}</code></pre>
+    </div>
+
+    <h2>MainActivity2</h2>
+    <p class="intro-text">Muestra datos recibidos y puede enviar la edad a <code>MainActivity3</code>.</p>
+    <div class="code-container">
+        <pre><code><span class="keyword">import</span> <span class="type">android.content.Intent</span>;
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.view.View</span>;
+<span class="keyword">import</span> <span class="type">android.widget.TextView</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity2</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+
+    <span class="type">TextView</span> datos;
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main2);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+
+        datos = <span class="method">findViewById</span>(<span class="type">R</span>.id.datos);
+        <span class="type">String</span> nombree = <span class="method">getIntent</span>().<span class="method">getStringExtra</span>(<span class="string">"nombree"</span>);
+        <span class="type">String</span> edadd = <span class="method">getIntent</span>().<span class="method">getStringExtra</span>(<span class="string">"edadd"</span>);
+
+        datos.<span class="method">setText</span>(<span class="string">"Nombre: "</span>+nombree+<span class="string">"\n"</span>+
+                        <span class="string">"Edad:"</span>+edadd);
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">siguiente</span>(<span class="type">View</span> view) {
+        <span class="type">Intent</span> intent = <span class="keyword">new</span> <span class="type">Intent</span>(<span class="type">MainActivity2</span>.<span class="keyword">this</span>,<span class="type">MainActivity3</span>.<span class="keyword">class</span>);
+        <span class="type">String</span> edadd = <span class="method">getIntent</span>().<span class="method">getStringExtra</span>(<span class="string">"edadd"</span>);
+        intent.<span class="method">putExtra</span>(<span class="string">"edadd"</span>, edadd);
+        <span class="method">startActivity</span>(intent);
+    }
+}</code></pre>
+    </div>
+
+    <h2>MainActivity3</h2>
+    <p class="intro-text">Muestra un mensaje según la edad recibida.</p>
+    <div class="code-container">
+        <pre><code><span class="keyword">import</span> <span class="type">android.content.Intent</span>; <span class="comment">// Añadido para getIntent()</span>
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.widget.TextView</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity3</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+
+    <span class="type">TextView</span> txtmensaje;
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main3);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+        txtmensaje = <span class="method">findViewById</span>(<span class="type">R</span>.id.mostrarMensaje);
+
+        <span class="type">String</span> edaddStr = <span class="method">getIntent</span>().<span class="method">getStringExtra</span>(<span class="string">"edadd"</span>);
+        <span class="keyword">if</span> (edaddStr == <span class="keyword">null</span> || edaddStr.<span class="method">isEmpty</span>()) {
+            txtmensaje.<span class="method">setText</span>(<span class="string">"Edad no recibida"</span>);
+            <span class="keyword">return</span>;
+        }
+
+        <span class="keyword">int</span> edadd = <span class="type">Integer</span>.<span class="method">parseInt</span>(edaddStr);
+        <span class="type">String</span> mensaje = <span class="string">"Tienes "</span>+edadd+<span class="string">"\n"</span>;
+        <span class="keyword">if</span>(edadd > <span class="number">0</span> && edadd <= <span class="number">12</span>){
+            mensaje += <span class="string">"eres un niño"</span>;
+        }
+
+        <span class="keyword">if</span>(edadd > <span class="number">12</span> && edadd <= <span class="number">18</span>){
+            mensaje += <span class="string">"eres un adolescente"</span>;
+        }
+
+        <span class="keyword">if</span>(edadd > <span class="number">18</span> && edadd <= <span class="number">60</span>){
+            mensaje += <span class="string">"eres un adulto"</span>;
+        }
+
+        txtmensaje.<span class="method">setText</span>(mensaje);
+    } <span class="comment">// Cierre de onCreate añadido</span>
+} <span class="comment">// Cierre de clase añadido</span></code></pre>
+    </div>
+
+    <h2>MainActivity4</h2>
+    <p class="intro-text">Uso de Toolbar, menú de opciones y envío de correo.</p>
+    <div class="code-container">
+        <pre><code><span class="keyword">import</span> <span class="type">android.content.Intent</span>;
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.view.Menu</span>;
+<span class="keyword">import</span> <span class="type">android.view.MenuInflater</span>;
+<span class="keyword">import</span> <span class="type">android.view.MenuItem</span>;
+<span class="keyword">import</span> <span class="type">android.view.View</span>;
+<span class="keyword">import</span> <span class="type">android.widget.TextView</span>;
+<span class="keyword">import</span> <span class="type">android.widget.Toast</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.annotation.NonNull</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.widget.Toolbar</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity4</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+    <span class="type">TextView</span> mensaje2;
+    <span class="comment">// Toolbar mi_toolbar; // Declarado pero no usado directamente, se usa toolbar local</span>
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main4);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+        mensaje2 = <span class="method">findViewById</span>(<span class="type">R</span>.id.mensaje2);
+        <span class="type">Toolbar</span> toolbar = <span class="method">findViewById</span>(<span class="type">R</span>.id.mi_toolbar);
+        toolbar.<span class="method">setTitle</span>(<span class="string">""</span>);
+        <span class="method">setSupportActionBar</span>(toolbar);
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">enviarCorreo</span>(<span class="type">View</span> view) {
+        <span class="type">String</span>[] direcciones = {<span class="string">"2021110360@udh.edu.pe"</span>};
+        <span class="type">Intent</span> intent = <span class="keyword">new</span> <span class="type">Intent</span>(<span class="type">Intent</span>.ACTION_SEND);
+        intent.<span class="method">setType</span>(<span class="string">"*/*"</span>);
+        intent.<span class="method">putExtra</span>(<span class="type">Intent</span>.EXTRA_EMAIL, direcciones);
+        intent.<span class="method">putExtra</span>(<span class="type">Intent</span>.EXTRA_SUBJECT, <span class="string">"saludos"</span>);
+        intent.<span class="method">putExtra</span>(<span class="type">Intent</span>.EXTRA_STREAM, mensaje2.<span class="method">getText</span>().<span class="method">toString</span>());
+        <span class="method">startActivity</span>(intent);
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="keyword">boolean</span> <span class="method">onCreateOptionsMenu</span>(<span class="annotation">@NonNull</span> <span class="type">Menu</span> menu) { <span class="comment">// Corregido de onCreatePanelMenu</span>
+        <span class="type">MenuInflater</span> inflater = <span class="method">getMenuInflater</span>();
+        inflater.<span class="method">inflate</span>(<span class="type">R</span>.menu.mi_menu, menu);
+        <span class="keyword">return</span> <span class="keyword">true</span>;
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="keyword">boolean</span> <span class="method">onOptionsItemSelected</span>(<span class="annotation">@NonNull</span> <span class="type">MenuItem</span> item) {
+        <span class="keyword">if</span> (item.<span class="method">getItemId</span>() == <span class="type">R</span>.id.op1){
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="type">MainActivity4</span>.<span class="keyword">this</span>, <span class="string">"Opcion 1"</span>, <span class="type">Toast</span>.LENGTH_SHORT).<span class="method">show</span>(); <span class="comment">// Asumo que era Opcion 1</span>
+            <span class="keyword">return</span> <span class="keyword">true</span>;
+        }
+
+        <span class="keyword">if</span> (item.<span class="method">getItemId</span>() == <span class="type">R</span>.id.op2){
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="type">MainActivity4</span>.<span class="keyword">this</span>, <span class="string">"Opcion 2"</span>, <span class="type">Toast</span>.LENGTH_SHORT).<span class="method">show</span>();
+            <span class="keyword">return</span> <span class="keyword">true</span>;
+        }
+        
+        <span class="keyword">return</span> <span class="keyword">false</span>;
+    }
+}</code></pre>
+    </div>
+
+    <h2>MainActivity5</h2>
+    <p class="intro-text">Configuración de un RecyclerView para mostrar una lista de contactos.</p>
+    <div class="code-container">
+        <pre><code><span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.LinearLayoutManager</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.RecyclerView</span>;
+
+<span class="keyword">import</span> <span class="type">java.util.ArrayList</span>;
+<span class="keyword">import</span> <span class="type">java.util.List</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity5</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+
+    <span class="type">RecyclerView</span> miRV;
+    <span class="type">RecyclerView.LayoutManager</span> layoutManager;
+    <span class="type">RecyclerView.Adapter</span> miAdaptador;
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main5);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+
+        miRV = <span class="method">findViewById</span>(<span class="type">R</span>.id.miRV);
+
+        layoutManager = <span class="keyword">new</span> <span class="type">LinearLayoutManager</span>(<span class="keyword">this</span>);
+        miRV.<span class="method">setLayoutManager</span>(layoutManager);
+
+        <span class="type">List</span><<span class="type">Contacto</span>> datos = <span class="keyword">new</span> <span class="type">ArrayList</span><>();
+        datos.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Contacto</span>(<span class="string">"Diego Rosales"</span>, <span class="string">"Hola mundo"</span>));
+        datos.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Contacto</span>(<span class="string">"Samir Huerto"</span>, <span class="string">"Saludos"</span>));
+        miAdaptador = <span class="keyword">new</span> <span class="type">MiAdapter</span>(datos);
+        miRV.<span class="method">setAdapter</span>(miAdaptador);
+    }
+}</code></pre>
+    </div>
+    
+    <h2>Contacto</h2>
+    <p class="intro-text">Clase POJO para representar un contacto.</p>
+    <div class="code-container">
+        <pre><code><span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">Contacto</span></span> {
+    <span class="keyword">private</span> <span class="type">String</span> nombres;
+    <span class="keyword">private</span> <span class="type">String</span> mensaje;
+
+    <span class="keyword">public</span> <span class="method">Contacto</span>(<span class="type">String</span> nombres, <span class="type">String</span> mensaje) {
+        <span class="keyword">this</span>.nombres = nombres;
+        <span class="keyword">this</span>.mensaje = mensaje;
+    }
+
+    <span class="keyword">public</span> <span class="type">String</span> <span class="method">getNombres</span>() {
+        <span class="keyword">return</span> nombres;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setNombres</span>(<span class="type">String</span> nombres) {
+        <span class="keyword">this</span>.nombres = nombres;
+    }
+
+    <span class="keyword">public</span> <span class="type">String</span> <span class="method">getMensaje</span>() {
+        <span class="keyword">return</span> mensaje;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setMensaje</span>(<span class="type">String</span> mensaje) {
+        <span class="keyword">this</span>.mensaje = mensaje;
+    }
+}</code></pre>
+    </div>
+
+    <h2>MiAdapter</h2>
+    <p class="intro-text">Adaptador para el RecyclerView que muestra los datos de <code>Contacto</code>.</p>
+    <div class="code-container">
+        <pre><code><span class="keyword">import</span> <span class="type">android.view.LayoutInflater</span>;
+<span class="keyword">import</span> <span class="type">android.view.View</span>;
+<span class="keyword">import</span> <span class="type">android.view.ViewGroup</span>;
+<span class="keyword">import</span> <span class="type">android.widget.TextView</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.annotation.NonNull</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.RecyclerView</span>;
+
+<span class="keyword">import</span> <span class="type">java.util.List</span>;
+
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MiAdapter</span> <span class="keyword">extends</span> <span class="type">RecyclerView.Adapter</span><<span class="type">MiAdapter.MiViewHolder</span>></span> {
+    <span class="type">List</span><<span class="type">Contacto</span>> misDatos;
+
+    <span class="keyword">public</span> <span class="method">MiAdapter</span>(<span class="type">List</span><<span class="type">Contacto</span>> misDatos) {
+        <span class="keyword">this</span>.misDatos = misDatos;
+    }
+
+    <span class="annotation">@NonNull</span>
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="type">MiAdapter.MiViewHolder</span> <span class="method">onCreateViewHolder</span>(<span class="annotation">@NonNull</span> <span class="type">ViewGroup</span> parent, <span class="keyword">int</span> viewType) {
+        <span class="type">View</span> v = <span class="type">LayoutInflater</span>.<span class="method">from</span>(parent.<span class="method">getContext</span>())
+                .<span class="method">inflate</span>(<span class="type">R</span>.layout.mi_layout_rv, parent, <span class="keyword">false</span>);
+        <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">MiViewHolder</span>(v);
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">onBindViewHolder</span>(<span class="annotation">@NonNull</span> <span class="type">MiAdapter.MiViewHolder</span> holder, <span class="keyword">int</span> position) {
+        holder.tvNombres.<span class="method">setText</span>(misDatos.<span class="method">get</span>(position).<span class="method">getNombres</span>());
+        holder.tvMensaje.<span class="method">setText</span>(misDatos.<span class="method">get</span>(position).<span class="method">getMensaje</span>());
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="keyword">int</span> <span class="method">getItemCount</span>() {
+        <span class="keyword">return</span> misDatos.<span class="method">size</span>();
+    }
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="type">MiViewHolder</span> <span class="keyword">extends</span> <span class="type">RecyclerView.ViewHolder</span> {
+        <span class="type">TextView</span> tvNombres, tvMensaje;
+        <span class="keyword">public</span> <span class="method">MiViewHolder</span>(<span class="annotation">@NonNull</span> <span class="type">View</span> itemView) {
+            <span class="keyword">super</span>(itemView);
+            tvNombres = itemView.<span class="method">findViewById</span>(<span class="type">R</span>.id.tvNombres);
+            tvMensaje = itemView.<span class="method">findViewById</span>(<span class="type">R</span>.id.tvMensaje);
+        }
+    }
+}</code></pre>
+    </div>
+
+    <h2>Layout (Inclusión de Toolbar)</h2>
+    <p class="intro-text">Recordatorio: snippet XML para incluir una Toolbar personalizada.</p>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">include</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/mi_toolbar"</span>
+    <span class="xml-attr-name">layout</span>=<span class="string">"@layout/mi_toolbar"</span>/></code></pre>
+    </div>
+
+    <h2>Menu (mi_menu.xml)</h2>
+    <p class="intro-text">Definición de un menú de opciones para la Toolbar/ActionBar.</p>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">menu</span> <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>>
+    <<span class="xml-tag">item</span> <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/op1"</span>
+        <span class="xml-attr-name">android:title</span>=<span class="string">"Opcion 1"</span>
+        <span class="xml-attr-name">android:icon</span>=<span class="string">"@drawable/search_svgrepo_com"</span>
+        <span class="xml-attr-name">app:showAsAction</span>=<span class="string">"always"</span>/>
+    <<span class="xml-tag">item</span> <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/op2"</span>
+        <span class="xml-attr-name">android:title</span>=<span class="string">"Opcion 2"</span>
+        <span class="xml-attr-name">app:showAsAction</span>=<span class="string">"never"</span>/>
+    <<span class="xml-tag">item</span> <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/op3"</span>
+        <span class="xml-attr-name">android:title</span>=<span class="string">"Opcion 3"</span>
+        <span class="xml-attr-name">android:icon</span>=<span class="string">"@drawable/three_dots_vertical_svgrepo_com"</span>
+        <span class="xml-attr-name">app:showAsAction</span>=<span class="string">"always"</span>/>
+</<span class="xml-tag">menu</span>></code></pre>
+    </div>
+
+</body>
+</html>
