@@ -60,10 +60,15 @@
 </head>
 <body>
 
-    <h1>Ejemplos de Código Android</h1>
+    <h1>Android Studio Intents, aprende lo básico</h1>
 
     <h2>MainActivity</h2>
-    <p class="intro-text">Recopila datos del usuario y navega a otras Activities.</p>
+    <p class="intro-text">
+        Esta es la actividad principal de la aplicación, sirviendo como punto de entrada.
+        Se encarga de inicializar la interfaz de usuario, incluyendo campos de texto para que el usuario ingrese su nombre y edad.
+        Contiene lógica para procesar estos datos y enviarlos a <code>MainActivity2</code> mediante un Intent.
+        Además, proporciona botones para navegar directamente a <code>MainActivity4</code> y <code>MainActivity5</code>.
+    </p>
     <div class="code-container">
         <pre><code><span class="keyword">import</span> <span class="type">android.content.Intent</span>;
 <span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
@@ -115,7 +120,12 @@
     </div>
 
     <h2>MainActivity2</h2>
-    <p class="intro-text">Muestra datos recibidos y puede enviar la edad a <code>MainActivity3</code>.</p>
+    <p class="intro-text">
+        <code>MainActivity2</code> está diseñada para recibir y mostrar los datos enviados desde <code>MainActivity</code>.
+        Extrae el nombre y la edad del Intent entrante y los presenta en un TextView.
+        También incluye funcionalidad para pasar la edad recibida a una tercera actividad, <code>MainActivity3</code>,
+        demostrando el flujo de datos entre múltiples pantallas.
+    </p>
     <div class="code-container">
         <pre><code><span class="keyword">import</span> <span class="type">android.content.Intent</span>;
 <span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
@@ -160,7 +170,12 @@
     </div>
 
     <h2>MainActivity3</h2>
-    <p class="intro-text">Muestra un mensaje según la edad recibida.</p>
+    <p class="intro-text">
+        El propósito de <code>MainActivity3</code> es tomar la edad recibida (originalmente de <code>MainActivity</code>, pasada a través de <code>MainActivity2</code>)
+        y mostrar un mensaje personalizado basado en rangos de edad.
+        Realiza una validación para asegurar que la edad fue recibida correctamente antes de intentar procesarla.
+        Categoriza la edad en "niño", "adolescente" o "adulto" y actualiza un TextView con el mensaje correspondiente.
+    </p>
     <div class="code-container">
         <pre><code><span class="keyword">import</span> <span class="type">android.content.Intent</span>; <span class="comment">// Añadido para getIntent()</span>
 <span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
@@ -213,7 +228,12 @@
     </div>
 
     <h2>MainActivity4</h2>
-    <p class="intro-text">Uso de Toolbar, menú de opciones y envío de correo.</p>
+    <p class="intro-text">
+        <code>MainActivity4</code> demuestra la implementación de una Toolbar personalizada y la gestión de un menú de opciones.
+        Configura la Toolbar, permite la inflación de un menú desde un archivo XML y maneja las acciones cuando se seleccionan ítems del menú.
+        Adicionalmente, incluye una función para componer y enviar un correo electrónico utilizando un Intent <code>ACTION_SEND</code>,
+        tomando la dirección, asunto y cuerpo del mensaje de elementos de la UI o predefinidos.
+    </p>
     <div class="code-container">
         <pre><code><span class="keyword">import</span> <span class="type">android.content.Intent</span>;
 <span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
@@ -287,7 +307,12 @@
     </div>
 
     <h2>MainActivity5</h2>
-    <p class="intro-text">Configuración de un RecyclerView para mostrar una lista de contactos.</p>
+    <p class="intro-text">
+        Esta actividad se centra en mostrar una lista de datos utilizando un <code>RecyclerView</code>.
+        Inicializa el RecyclerView, establece un <code>LinearLayoutManager</code> para la disposición de los ítems,
+        y crea una lista de objetos <code>Contacto</code> de ejemplo.
+        Luego, instancia y asigna un adaptador personalizado (<code>MiAdapter</code>) al RecyclerView para poblarlo con los datos.
+    </p>
     <div class="code-container">
         <pre><code><span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
 
@@ -333,7 +358,12 @@
     </div>
     
     <h2>Contacto</h2>
-    <p class="intro-text">Clase POJO para representar un contacto.</p>
+    <p class="intro-text">
+        La clase <code>Contacto</code> es un simple POJO (Plain Old Java Object) que sirve como modelo de datos.
+        Representa la estructura de un contacto, conteniendo propiedades para los nombres y un mensaje.
+        Incluye un constructor para inicializar estos campos y los métodos getter y setter estándar
+        para acceder y modificar los datos del objeto Contacto.
+    </p>
     <div class="code-container">
         <pre><code><span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">Contacto</span></span> {
     <span class="keyword">private</span> <span class="type">String</span> nombres;
@@ -363,7 +393,13 @@
     </div>
 
     <h2>MiAdapter</h2>
-    <p class="intro-text">Adaptador para el RecyclerView que muestra los datos de <code>Contacto</code>.</p>
+    <p class="intro-text">
+        <code>MiAdapter</code> es una clase crucial para el funcionamiento del <code>RecyclerView</code> en <code>MainActivity5</code>.
+        Extiende <code>RecyclerView.Adapter</code> y se encarga de vincular la lista de objetos <code>Contacto</code> con las vistas individuales de cada ítem.
+        Implementa los métodos necesarios como <code>onCreateViewHolder</code> (para inflar el layout de cada ítem),
+        <code>onBindViewHolder</code> (para poblar los datos en la vista del ítem) y <code>getItemCount</code> (para saber cuántos ítems hay).
+        También define una clase interna <code>MiViewHolder</code> que mantiene las referencias a las vistas de cada ítem.
+    </p>
     <div class="code-container">
         <pre><code><span class="keyword">import</span> <span class="type">android.view.LayoutInflater</span>;
 <span class="keyword">import</span> <span class="type">android.view.View</span>;
@@ -414,7 +450,12 @@
     </div>
 
     <h2>Layout (Inclusión de Toolbar)</h2>
-    <p class="intro-text">Recordatorio: snippet XML para incluir una Toolbar personalizada.</p>
+    <p class="intro-text">
+        Este fragmento de código XML demuestra cómo incluir un layout de Toolbar separado dentro de otro archivo de layout.
+        Utilizando la etiqueta <code><include></code>, se puede reutilizar un diseño de Toolbar común en múltiples actividades.
+        El atributo <code>android:id</code> permite referenciar esta Toolbar incluida desde el código Java,
+        mientras que <code>layout="@layout/mi_toolbar"</code> especifica el archivo de layout que contiene la definición de la Toolbar.
+    </p>
     <div class="code-container">
         <pre><code><<span class="xml-tag">include</span>
     <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/mi_toolbar"</span>
@@ -422,7 +463,12 @@
     </div>
 
     <h2>Menu (mi_menu.xml)</h2>
-    <p class="intro-text">Definición de un menú de opciones para la Toolbar/ActionBar.</p>
+    <p class="intro-text">
+        Este es un archivo XML que define la estructura de un menú de opciones para ser usado en una ActionBar o Toolbar.
+        Cada etiqueta <code><item></code> representa una opción del menú, con atributos como <code>android:id</code> para identificación,
+        <code>android:title</code> para el texto visible, y opcionalmente <code>android:icon</code> para un ícono.
+        El atributo <code>app:showAsAction</code> controla cómo y cuándo el ítem del menú se muestra en la barra de acciones (por ejemplo, "always", "ifRoom", "never").
+    </p>
     <div class="code-container">
         <pre><code><<span class="xml-tag">menu</span> <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
     <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>>
