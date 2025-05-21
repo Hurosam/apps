@@ -81,6 +81,11 @@
             border-bottom: 2px solid #ccc;
             padding-bottom: 5px;
         }
+        h3 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 3px;
+            margin-top: 25px;
+        }
         .intro-text {
             margin-bottom: 15px;
             font-style: italic;
@@ -521,6 +526,555 @@
         <span class="xml-attr-name">android:icon</span>=<span class="string">"@drawable/three_dots_vertical_svgrepo_com"</span>
         <span class="xml-attr-name">app:showAsAction</span>=<span class="string">"always"</span>/>
 </<span class="xml-tag">menu</span>></code></pre>
+    </div>
+
+    <!-- *************************************************************** -->
+    <!-- NUEVAS SECCIONES AÑADIDAS -->
+    <!-- *************************************************************** -->
+
+    <h1>Proyectos Adicionales</h1>
+
+    <h2>Proyecto: Calculadora de Serie Fibonacci</h2>
+    <p class="intro-text">
+        Esta aplicación demuestra el uso de dos Activities para un flujo de datos sencillo.
+        La primera Activity (`Fibonacci MainActivity`) solicita un número entero positivo `N`.
+        Al presionar un botón, `N` se envía a la segunda Activity (`Fibonacci SecondActivity`)
+        mediante un Intent. En la segunda Activity, se calcula y muestra la suma de los primeros `N`
+        términos de la serie de Fibonacci (1, 1, 2, 3, 5, ...), utilizando un bucle (sin recursión).
+        Se incluye validación para asegurar que `N` sea mayor que 0.
+    </p>
+
+    <h3>Fibonacci MainActivity (Java)</h3>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">com.example.fibonacci</span>; <span class="comment">// Puedes cambiar el nombre del paquete</span>
+
+<span class="keyword">import</span> <span class="type">android.content.Intent</span>;
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.view.View</span>;
+<span class="keyword">import</span> <span class="type">android.widget.EditText</span>;
+<span class="keyword">import</span> <span class="type">android.widget.Toast</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+
+    <span class="keyword">private</span> <span class="type">EditText</span> editTextN;
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> EXTRA_N = <span class="string">"com.example.fibonacci.EXTRA_N"</span>; <span class="comment">// Clave para el Intent</span>
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+
+        editTextN = <span class="method">findViewById</span>(<span class="type">R</span>.id.editTextN);
+    }
+
+    <span class="comment">// Método llamado cuando se hace clic en el botón</span>
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">calculateFibonacci</span>(<span class="type">View</span> view) {
+        <span class="type">String</span> nString = editTextN.<span class="method">getText</span>().<span class="method">toString</span>();
+
+        <span class="keyword">if</span> (nString.<span class="method">isEmpty</span>()) {
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"Por favor, ingresa un número."</span>, <span class="type">Toast</span>.LENGTH_SHORT).<span class="method">show</span>();
+            <span class="keyword">return</span>;
+        }
+
+        <span class="keyword">int</span> N;
+        <span class="keyword">try</span> {
+            N = <span class="type">Integer</span>.<span class="method">parseInt</span>(nString);
+        } <span class="keyword">catch</span> (<span class="type">NumberFormatException</span> e) {
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"Entrada inválida. Ingresa un número entero."</span>, <span class="type">Toast</span>.LENGTH_SHORT).<span class="method">show</span>();
+            <span class="keyword">return</span>;
+        }
+
+        <span class="comment">// Validación N > 0 antes de enviar</span>
+        <span class="keyword">if</span> (N <= <span class="number">0</span>) {
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"El número N debe ser mayor que 0."</span>, <span class="type">Toast</span>.LENGTH_SHORT).<span class="method">show</span>();
+            <span class="keyword">return</span>;
+        }
+
+        <span class="comment">// Crear Intent para navegar a SecondActivity</span>
+        <span class="type">Intent</span> intent = <span class="keyword">new</span> <span class="type">Intent</span>(<span class="type">MainActivity</span>.<span class="keyword">this</span>, <span class="type">SecondActivity</span>.<span class="keyword">class</span>);
+        <span class="comment">// Enviar el número N usando un extra en el Intent</span>
+        intent.<span class="method">putExtra</span>(EXTRA_N, N);
+        <span class="method">startActivity</span>(intent);
+    }
+}</code></pre>
+    </div>
+
+    <h3>Fibonacci SecondActivity (Java)</h3>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">com.example.fibonacci</span>; <span class="comment">// Debe ser el mismo paquete que MainActivity</span>
+
+<span class="keyword">import</span> <span class="type">android.content.Intent</span>;
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.widget.TextView</span>;
+<span class="keyword">import</span> <span class="type">android.widget.Toast</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">SecondActivity</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+
+    <span class="keyword">private</span> <span class="type">TextView</span> textViewResult;
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_second);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+
+        textViewResult = <span class="method">findViewById</span>(<span class="type">R</span>.id.textViewResult);
+
+        <span class="comment">// Obtener el Intent que inició esta actividad</span>
+        <span class="type">Intent</span> intent = <span class="method">getIntent</span>();
+        <span class="keyword">if</span> (intent == <span class="keyword">null</span>) {
+            <span class="comment">// Esto no debería ocurrir si MainActivity siempre envía un Intent</span>
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"Error: No se recibió ningún Intent."</span>, <span class="type">Toast</span>.LENGTH_LONG).<span class="method">show</span>();
+            <span class="method">finish</span>(); <span class="comment">// Regresar a la actividad anterior</span>
+            <span class="keyword">return</span>;
+        }
+
+        <span class="comment">// Obtener el valor de N del Intent. El -1 es un valor por defecto si la clave no se encuentra.</span>
+        <span class="keyword">int</span> N = intent.<span class="method">getIntExtra</span>(<span class="type">MainActivity</span>.EXTRA_N, -<span class="number">1</span>);
+
+        <span class="comment">// Validación de N (si por alguna razón se pasó un valor no válido o el Intent era incorrecto)</span>
+        <span class="keyword">if</span> (N <= <span class="number">0</span>) {
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"Error: El número N recibido no es válido. Regresando..."</span>, <span class="type">Toast</span>.LENGTH_LONG).<span class="method">show</span>();
+            <span class="method">finish</span>(); <span class="comment">// Regresar a la MainActivity</span>
+            <span class="keyword">return</span>;
+        }
+
+        <span class="comment">// Calcular la suma de los primeros N términos de la serie Fibonacci</span>
+        <span class="comment">// La serie se define como (1, 1, 2, 3, 5, ...)</span>
+        <span class="keyword">long</span> sum = <span class="number">0</span>;
+        <span class="keyword">if</span> (N == <span class="number">1</span>) {
+            sum = <span class="number">1</span>;
+        } <span class="keyword">else</span> <span class="keyword">if</span> (N == <span class="number">2</span>) {
+            sum = <span class="number">2</span>; <span class="comment">// 1 + 1</span>
+        } <span class="keyword">else</span> {
+            <span class="keyword">long</span> a = <span class="number">1</span>; <span class="comment">// Primer término</span>
+            <span class="keyword">long</span> b = <span class="number">1</span>; <span class="comment">// Segundo término</span>
+            sum = a + b; <span class="comment">// Suma inicial de los dos primeros términos (1+1=2)</span>
+
+            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">3</span>; i <= N; i++) {
+                <span class="keyword">long</span> nextTerm = a + b;
+                sum += nextTerm;
+                a = b;
+                b = nextTerm;
+            }
+        }
+
+        <span class="comment">// Mostrar el resultado</span>
+        <span class="type">String</span> result = <span class="string">"La suma de los primeros "</span> + N + <span class="string">" términos de Fibonacci es:\n"</span> + sum;
+        textViewResult.<span class="method">setText</span>(result);
+    }
+}</code></pre>
+    </div>
+
+    <h3>Layout: activity_main.xml (Fibonacci)</h3>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span> <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/main"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:padding</span>=<span class="string">"16dp"</span>
+    <span class="xml-attr-name">tools:context</span>=<span class="string">".MainActivity"</span>>
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/textViewTitle"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Calculadora de Fibonacci"</span>
+        <span class="xml-attr-name">android:textSize</span>=<span class="string">"24sp"</span>
+        <span class="xml-attr-name">android:textStyle</span>=<span class="string">"bold"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"32dp"</span>/>
+
+    <<span class="xml-tag">EditText</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/editTextN"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:hint</span>=<span class="string">"Ingrese un número entero positivo N"</span>
+        <span class="xml-attr-name">android:inputType</span>=<span class="string">"number"</span>
+        <span class="xml-attr-name">android:minHeight</span>=<span class="string">"48dp"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/textViewTitle"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"32dp"</span>/>
+
+    <<span class="xml-tag">Button</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/buttonCalculate"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Calcular Suma de Fibonacci"</span>
+        <span class="xml-attr-name">android:onClick</span>=<span class="string">"calculateFibonacci"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/editTextN"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"16dp"</span>/>
+
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
+    </div>
+
+    <h3>Layout: activity_second.xml (Fibonacci)</h3>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span> <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/main"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:padding</span>=<span class="string">"16dp"</span>
+    <span class="xml-attr-name">tools:context</span>=<span class="string">".SecondActivity"</span>>
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/textViewResult"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Resultado de Fibonacci"</span>
+        <span class="xml-attr-name">android:textSize</span>=<span class="string">"22sp"</span>
+        <span class="xml-attr-name">android:textStyle</span>=<span class="string">"bold"</span>
+        <span class="xml-attr-name">android:gravity</span>=<span class="string">"center"</span>
+        <span class="xml-attr-name">app:layout_constraintBottom_toBottomOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span> />
+
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
+    </div>
+
+    <h2>Proyecto: Calculadora Aritmética Básica</h2>
+    <p class="intro-text">
+        Esta aplicación implementa las cuatro operaciones aritméticas básicas (suma, resta, multiplicación y división)
+        entre dos números enteros. Utiliza dos Activities: la primera (`Calculadora MainActivity`) permite ingresar
+        los números y seleccionar la operación mediante cuatro botones. La segunda Activity (`Calculadora ResultActivity`)
+        muestra el resultado de la operación y un botón para regresar a la primera Activity.
+    </p>
+
+    <h3>Calculadora MainActivity (Java)</h3>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">com.example.basiccalculator</span>; <span class="comment">// Cambia el nombre de tu paquete si es diferente</span>
+
+<span class="keyword">import</span> <span class="type">android.content.Intent</span>;
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.view.View</span>;
+<span class="keyword">import</span> <span class="type">android.widget.EditText</span>;
+<span class="keyword">import</span> <span class="type">android.widget.Toast</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+
+    <span class="keyword">private</span> <span class="type">EditText</span> editTextNum1;
+    <span class="keyword">private</span> <span class="type">EditText</span> editTextNum2;
+
+    <span class="comment">// Claves para los extras del Intent</span>
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> EXTRA_NUM1 = <span class="string">"com.example.basiccalculator.NUM1"</span>;
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> EXTRA_NUM2 = <span class="string">"com.example.basiccalculator.NUM2"</span>;
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> EXTRA_OPERATION = <span class="string">"com.example.basiccalculator.OPERATION"</span>;
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+
+        editTextNum1 = <span class="method">findViewById</span>(<span class="type">R</span>.id.editTextNum1);
+        editTextNum2 = <span class="method">findViewById</span>(<span class="type">R</span>.id.editTextNum2);
+    }
+
+    <span class="comment">// Método que se llama al hacer clic en cualquiera de los botones de operación</span>
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">performOperation</span>(<span class="type">View</span> view) {
+        <span class="type">String</span> sNum1 = editTextNum1.<span class="method">getText</span>().<span class="method">toString</span>();
+        <span class="type">String</span> sNum2 = editTextNum2.<span class="method">getText</span>().<span class="method">toString</span>();
+
+        <span class="keyword">if</span> (sNum1.<span class="method">isEmpty</span>() || sNum2.<span class="method">isEmpty</span>()) {
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"Por favor, ingresa ambos números."</span>, <span class="type">Toast</span>.LENGTH_SHORT).<span class="method">show</span>();
+            <span class="keyword">return</span>;
+        }
+
+        <span class="keyword">try</span> {
+            <span class="keyword">int</span> num1 = <span class="type">Integer</span>.<span class="method">parseInt</span>(sNum1);
+            <span class="keyword">int</span> num2 = <span class="type">Integer</span>.<span class="method">parseInt</span>(sNum2);
+
+            <span class="type">String</span> operation = <span class="string">""</span>;
+            <span class="keyword">int</span> viewId = view.<span class="method">getId</span>();
+
+            <span class="keyword">if</span> (viewId == <span class="type">R</span>.id.buttonAdd) {
+                operation = <span class="string">"SUM"</span>;
+            } <span class="keyword">else</span> <span class="keyword">if</span> (viewId == <span class="type">R</span>.id.buttonSubtract) {
+                operation = <span class="string">"SUBTRACT"</span>;
+            } <span class="keyword">else</span> <span class="keyword">if</span> (viewId == <span class="type">R</span>.id.buttonMultiply) {
+                operation = <span class="string">"MULTIPLY"</span>;
+            } <span class="keyword">else</span> <span class="keyword">if</span> (viewId == <span class="type">R</span>.id.buttonDivide) {
+                operation = <span class="string">"DIVIDE"</span>;
+            }
+
+            <span class="type">Intent</span> intent = <span class="keyword">new</span> <span class="type">Intent</span>(<span class="type">MainActivity</span>.<span class="keyword">this</span>, <span class="type">ResultActivity</span>.<span class="keyword">class</span>);
+            intent.<span class="method">putExtra</span>(EXTRA_NUM1, num1);
+            intent.<span class="method">putExtra</span>(EXTRA_NUM2, num2);
+            intent.<span class="method">putExtra</span>(EXTRA_OPERATION, operation);
+            <span class="method">startActivity</span>(intent);
+
+        } <span class="keyword">catch</span> (<span class="type">NumberFormatException</span> e) {
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"Entrada inválida. Ingresa números enteros."</span>, <span class="type">Toast</span>.LENGTH_SHORT).<span class="method">show</span>();
+        }
+    }
+}</code></pre>
+    </div>
+
+    <h3>Calculadora ResultActivity (Java)</h3>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">com.example.basiccalculator</span>; <span class="comment">// Cambia el nombre de tu paquete si es diferente</span>
+
+<span class="keyword">import</span> <span class="type">android.content.Intent</span>;
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.view.View</span>;
+<span class="keyword">import</span> <span class="type">android.widget.TextView</span>;
+<span class="keyword">import</span> <span class="type">android.widget.Toast</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">ResultActivity</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+
+    <span class="keyword">private</span> <span class="type">TextView</span> textViewResult;
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_result);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+
+        textViewResult = <span class="method">findViewById</span>(<span class="type">R</span>.id.textViewResult);
+
+        <span class="type">Intent</span> intent = <span class="method">getIntent</span>();
+        <span class="keyword">if</span> (intent != <span class="keyword">null</span>) {
+            <span class="keyword">int</span> num1 = intent.<span class="method">getIntExtra</span>(<span class="type">MainActivity</span>.EXTRA_NUM1, <span class="number">0</span>);
+            <span class="keyword">int</span> num2 = intent.<span class="method">getIntExtra</span>(<span class="type">MainActivity</span>.EXTRA_NUM2, <span class="number">0</span>);
+            <span class="type">String</span> operation = intent.<span class="method">getStringExtra</span>(<span class="type">MainActivity</span>.EXTRA_OPERATION);
+
+            <span class="keyword">double</span> result = <span class="number">0</span>; <span class="comment">// Usamos double para la división</span>
+            <span class="type">String</span> resultText = <span class="string">""</span>;
+
+            <span class="keyword">switch</span> (operation) {
+                <span class="keyword">case</span> <span class="string">"SUM"</span>:
+                    result = num1 + num2;
+                    resultText = num1 + <span class="string">" + "</span> + num2 + <span class="string">" = "</span> + <span class="type">String</span>.<span class="method">format</span>(<span class="string">"%.0f"</span>, result);
+                    <span class="keyword">break</span>;
+                <span class="keyword">case</span> <span class="string">"SUBTRACT"</span>:
+                    result = num1 - num2;
+                    resultText = num1 + <span class="string">" - "</span> + num2 + <span class="string">" = "</span> + <span class="type">String</span>.<span class="method">format</span>(<span class="string">"%.0f"</span>, result);
+                    <span class="keyword">break</span>;
+                <span class="keyword">case</span> <span class="string">"MULTIPLY"</span>:
+                    result = num1 * num2;
+                    resultText = num1 + <span class="string">" * "</span> + num2 + <span class="string">" = "</span> + <span class="type">String</span>.<span class="method">format</span>(<span class="string">"%.0f"</span>, result);
+                    <span class="keyword">break</span>;
+                <span class="keyword">case</span> <span class="string">"DIVIDE"</span>:
+                    <span class="keyword">if</span> (num2 == <span class="number">0</span>) {
+                        resultText = <span class="string">"Error: División por cero"</span>;
+                        <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, resultText, <span class="type">Toast</span>.LENGTH_LONG).<span class="method">show</span>();
+                        <span class="comment">// Opcional: regresar a la actividad anterior automáticamente en caso de error</span>
+                        <span class="comment">// finish();</span>
+                        <span class="comment">// return;</span>
+                    } <span class="keyword">else</span> {
+                        result = (<span class="keyword">double</span>) num1 / num2; <span class="comment">// Casteo a double para resultado con decimales</span>
+                        resultText = num1 + <span class="string">" / "</span> + num2 + <span class="string">" = "</span> + <span class="type">String</span>.<span class="method">format</span>(<span class="string">"%.2f"</span>, result); <span class="comment">// Formatear a 2 decimales</span>
+                    }
+                    <span class="keyword">break</span>;
+                <span class="keyword">default</span>:
+                    resultText = <span class="string">"Operación no válida."</span>;
+                    <span class="keyword">break</span>;
+            }
+            textViewResult.<span class="method">setText</span>(resultText);
+        } <span class="keyword">else</span> {
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"Error: No se recibieron datos de la operación."</span>, <span class="type">Toast</span>.LENGTH_SHORT).<span class="method">show</span>();
+            <span class="method">finish</span>(); <span class="comment">// Regresar a la MainActivity</span>
+        }
+    }
+
+    <span class="comment">// Método para el botón "Cerrar"</span>
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">closeActivity</span>(<span class="type">View</span> view) {
+        <span class="method">finish</span>(); <span class="comment">// Cierra esta actividad y regresa a la anterior (MainActivity)</span>
+    }
+}</code></pre>
+    </div>
+
+    <h3>Layout: activity_main.xml (Calculadora)</h3>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span> <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/main"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:padding</span>=<span class="string">"16dp"</span>
+    <span class="xml-attr-name">tools:context</span>=<span class="string">".MainActivity"</span>>
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/textViewTitle"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Calculadora Básica"</span>
+        <span class="xml-attr-name">android:textSize</span>=<span class="string">"24sp"</span>
+        <span class="xml-attr-name">android:textStyle</span>=<span class="string">"bold"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"32dp"</span>/>
+
+    <<span class="xml-tag">EditText</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/editTextNum1"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:hint</span>=<span class="string">"Primer número"</span>
+        <span class="xml-attr-name">android:inputType</span>=<span class="string">"numberSigned"</span>
+        <span class="xml-attr-name">android:minHeight</span>=<span class="string">"48dp"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/textViewTitle"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"32dp"</span>/>
+
+    <<span class="xml-tag">EditText</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/editTextNum2"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:hint</span>=<span class="string">"Segundo número"</span>
+        <span class="xml-attr-name">android:inputType</span>=<span class="string">"numberSigned"</span>
+        <span class="xml-attr-name">android:minHeight</span>=<span class="string">"48dp"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/editTextNum1"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"16dp"</span>/>
+
+    <<span class="xml-tag">Button</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/buttonAdd"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Sumar"</span>
+        <span class="xml-attr-name">android:onClick</span>=<span class="string">"performOperation"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/editTextNum2"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"32dp"</span>/>
+
+    <<span class="xml-tag">Button</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/buttonSubtract"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Restar"</span>
+        <span class="xml-attr-name">android:onClick</span>=<span class="string">"performOperation"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/buttonAdd"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"8dp"</span>/>
+
+    <<span class="xml-tag">Button</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/buttonMultiply"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Multiplicar"</span>
+        <span class="xml-attr-name">android:onClick</span>=<span class="string">"performOperation"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/buttonSubtract"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"8dp"</span>/>
+
+    <<span class="xml-tag">Button</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/buttonDivide"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Dividir"</span>
+        <span class="xml-attr-name">android:onClick</span>=<span class="string">"performOperation"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/buttonMultiply"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"8dp"</span>/>
+
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
+    </div>
+
+    <h3>Layout: activity_result.xml (Calculadora)</h3>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span> <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/main"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:padding</span>=<span class="string">"16dp"</span>
+    <span class="xml-attr-name">tools:context</span>=<span class="string">".ResultActivity"</span>>
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/textViewResult"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Resultado: "</span>
+        <span class="xml-attr-name">android:textSize</span>=<span class="string">"28sp"</span>
+        <span class="xml-attr-name">android:textStyle</span>=<span class="string">"bold"</span>
+        <span class="xml-attr-name">android:gravity</span>=<span class="string">"center"</span>
+        <span class="xml-attr-name">app:layout_constraintBottom_toTopOf</span>=<span class="string">"@+id/buttonClose"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintVertical_chainStyle</span>=<span class="string">"packed"</span>
+        <span class="xml-attr-name">android:layout_marginBottom</span>=<span class="string">"32dp"</span>/>
+
+    <<span class="xml-tag">Button</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/buttonClose"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Cerrar"</span>
+        <span class="xml-attr-name">android:onClick</span>=<span class="string">"closeActivity"</span>
+        <span class="xml-attr-name">app:layout_constraintBottom_toBottomOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/textViewResult"</span>/>
+
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
     </div>
 
 </body>
