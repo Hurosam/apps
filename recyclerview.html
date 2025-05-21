@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles de RecyclerView</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #6c757d; /* Un gris */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        .code-container {
+            background-color: #2d2d2d;
+            color: #cccccc;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        .code-container pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .keyword { color: #cc7832; font-weight: bold; }
+        .type { color: #6897bb; }
+        .string { color: #6a8759; }
+        .comment { color: #808080; font-style: italic; }
+        .method { color: #ffc66d; }
+        .number { color: #6897bb; }
+        .annotation { color: #bbb529; }
+        .xml-tag { color: #e83e8c; font-weight: bold; }
+        .xml-attr-name { color: #6f42c1; }
+        h2 {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .intro-text {
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">Volver a la Página Principal</a>
+    <h1>Detalles de RecyclerView en Android</h1>
+    <p class="intro-text">
+        El <code>RecyclerView</code> es un componente fundamental en Android para mostrar grandes conjuntos de datos de manera eficiente.
+        Es una versión más avanzada y flexible de las antiguas <code>ListView</code> y <code>GridView</code>.
+    </p>
+
+    <h2>Componentes clave de RecyclerView:</h2>
+    <ul>
+        <li><b>RecyclerView:</b> El contenedor principal de la vista.</li>
+        <li><b>LayoutManager:</b> Gestiona cómo se disponen los ítems en la pantalla (ej. lista lineal, cuadrícula, estantería).</li>
+        <li><b>Adapter:</b> Actúa como un puente entre la fuente de datos (tus objetos, como <code>Pelicula</code>) y las vistas individuales que se muestran en el RecyclerView. Se encarga de crear (inflar) y vincular las vistas.</li>
+        <li><b>ViewHolder:</b> Un contenedor para las vistas de un solo ítem. Reutiliza las vistas para mejorar el rendimiento al desplazarse por la lista.</li>
+    </ul>
+
+    <h2>Ejemplo de Implementación de RecyclerView (Aplicación de Películas):</h2>
+    <p class="intro-text">
+        Este ejemplo detalla la implementación completa de un RecyclerView para mostrar una lista de películas,
+        incluyendo la estructura de datos, el adaptador y los layouts asociados.
+    </p>
+
+    <h3>1. MainActivity (Configuración del RecyclerView)</h3>
+    <p>
+        Esta es la actividad principal que inicializa el <code>RecyclerView</code>, crea una lista de objetos <code>Pelicula</code>
+        y configura el <code>RecyclerAdapter</code> para mostrar los datos.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.LinearLayoutManager</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.RecyclerView</span>;
+
+<span class="keyword">import</span> <span class="type">java.util.ArrayList</span>;
+<span class="keyword">import</span> <span class="type">java.util.List</span>;
+
+<span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span> {
+    <span class="type">RecyclerView</span> recyclerView;
+    <span class="type">RecyclerAdapter</span> recyclerAdapter;
+    <span class="type">List</span><<span class="type">Pelicula</span>> listaPeliculas;
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+
+        listaPeliculas = <span class="keyword">new</span> <span class="type">ArrayList</span><>();
+        listaPeliculas.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"La Momia"</span>, <span class="string">"1999"</span>, <span class="type">R</span>.drawable.momia));
+        listaPeliculas.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"Harry Potter y el Caliz de Fuego"</span>,<span class="string">"2005"</span>,<span class="type">R</span>.drawable.hp));
+        listaPeliculas.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"El señor de los anillos"</span>,<span class="string">"2001"</span>,<span class="type">R</span>.drawable.anillos));
+        listaPeliculas.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"Avengers Endgame"</span>, <span class="string">"2019"</span>, <span class="type">R</span>.drawable.avengers));
+        listaPeliculas.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"Midsommar"</span>,<span class="string">"2019"</span>,<span class="type">R</span>.drawable.midsommar));
+
+        recyclerView = <span class="method">findViewById</span>(<span class="type">R</span>.id.miVista);
+        recyclerAdapter = <span class="keyword">new</span> <span class="type">RecyclerAdapter</span>(listaPeliculas);
+
+        recyclerView.<span class="method">setLayoutManager</span>(<span class="keyword">new</span> <span class="type">LinearLayoutManager</span>(<span class="keyword">this</span>));
+        recyclerView.<span class="method">setAdapter</span>(recyclerAdapter);
+    }
+}</code></pre>
+    </div>
+
+    <h3>2. Pelicula (Modelo de Datos)</h3>
+    <p>
+        Esta es la clase POJO (Plain Old Java Object) que define la estructura de datos para cada película,
+        incluyendo el título, el año y el ID del recurso de la imagen del póster.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="keyword">public</span> <span class="keyword">class</span> <span class="type">Pelicula</span> {
+    <span class="keyword">private</span> <span class="type">String</span> titulo;
+    <span class="keyword">private</span> <span class="type">String</span> ahno;
+    <span class="keyword">private</span> <span class="keyword">int</span> poster;
+
+    <span class="keyword">public</span> <span class="method">Pelicula</span>(<span class="type">String</span> titulo, <span class="type">String</span> ahno, <span class="keyword">int</span> poster) {
+        <span class="keyword">this</span>.titulo = titulo;
+        <span class="keyword">this</span>.ahno = ahno;
+        <span class="keyword">this</span>.poster = poster;
+    }
+
+    <span class="keyword">public</span> <span class="type">String</span> <span class="method">getTitulo</span>() {
+        <span class="keyword">return</span> titulo;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setTitulo</span>(<span class="type">String</span> titulo) {
+        <span class="keyword">this</span>.titulo = titulo;
+    }
+
+    <span class="keyword">public</span> <span class="type">String</span> <span class="method">getAhno</span>() {
+        <span class="keyword">return</span> ahno;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setAhno</span>(<span class="type">String</span> ahno) {
+        <span class="keyword">this</span>.ahno = ahno;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">int</span> <span class="method">getPoster</span>() {
+        <span class="keyword">return</span> poster;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setPoster</span>(<span class="keyword">int</span> poster) {
+        <span class="keyword">this</span>.poster = poster;
+    }
+}</code></pre>
+    </div>
+
+    <h3>3. RecyclerAdapter (Adaptador del RecyclerView)</h3>
+    <p>
+        Este adaptador es el encargado de tomar los datos de la lista de películas,
+        inflar el layout de cada ítem (<code>lista_items.xml</code>) y enlazar los datos (título, año, póster)
+        a las vistas correspondientes dentro de cada ítem. También incluye un <code>OnClickListener</code>
+        para mostrar un <code>Toast</code> al tocar un elemento de la lista.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="keyword">import</span> <span class="type">android.annotation.SuppressLint</span>;
+<span class="keyword">import</span> <span class="type">android.content.Intent</span>;
+<span class="keyword">import</span> <span class="type">android.content.res.Resources</span>;
+<span class="keyword">import</span> <span class="type">android.graphics.drawable.Drawable</span>;
+<span class="keyword">import</span> <span class="type">android.util.Log</span>;
+<span class="keyword">import</span> <span class="type">android.view.LayoutInflater</span>;
+<span class="keyword">import</span> <span class="type">android.view.View</span>;
+<span class="keyword">import</span> <span class="type">android.view.ViewGroup</span>;
+<span class="keyword">import</span> <span class="type">android.widget.ImageView</span>;
+<span class="keyword">import</span> <span class="type">android.widget.TextView</span>;
+<span class="keyword">import</span> <span class="type">android.widget.Toast</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.annotation.NonNull</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.RecyclerView</span>;
+
+<span class="keyword">import</span> <span class="type">java.util.List</span>;
+
+<span class="keyword">public</span> <span class="keyword">class</span> <span class="type">RecyclerAdapter</span> <span class="keyword">extends</span> <span class="type">RecyclerView.Adapter</span><<span class="type">RecyclerAdapter.ViewHolder</span>> {
+
+    <span class="keyword">int</span> i = <span class="number">0</span>;
+    <span class="type">List</span><<span class="type">Pelicula</span>> listaPeliculas;
+
+    <span class="keyword">public</span> <span class="method">RecyclerAdapter</span>(<span class="type">List</span><<span class="type">Pelicula</span>> listaPeliculas) {
+        <span class="keyword">this</span>.listaPeliculas = listaPeliculas;
+    }
+
+    <span class="annotation">@NonNull</span>
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="type">ViewHolder</span> <span class="method">onCreateViewHolder</span>(<span class="annotation">@NonNull</span> <span class="type">ViewGroup</span> parent, <span class="keyword">int</span> viewType) {
+        <span class="type">Log</span>.<span class="method">i</span>(<span class="string">"RecyclerView"</span>, <span class="string">"Elemento:"</span> + i++);
+
+        <span class="type">LayoutInflater</span> layoutInflater = <span class="type">LayoutInflater</span>.<span class="method">from</span>(parent.<span class="method">getContext</span>());
+        <span class="type">View</span> view = layoutInflater.<span class="method">inflate</span>(<span class="type">R</span>.layout.lista_items, parent, <span class="keyword">false</span>);
+        <span class="type">ViewHolder</span> viewHolder = <span class="keyword">new</span> <span class="type">ViewHolder</span>(view);
+        <span class="keyword">return</span> viewHolder;
+    }
+
+    <span class="annotation">@SuppressLint</span>(<span class="string">"UseCompatLoadingForDrawables"</span>)
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">onBindViewHolder</span>(<span class="annotation">@NonNull</span> <span class="type">ViewHolder</span> holder, <span class="keyword">int</span> position) {
+        holder.textView1.<span class="method">setText</span>(listaPeliculas.<span class="method">get</span>(position).<span class="method">getTitulo</span>());
+        holder.textView2.<span class="method">setText</span>(listaPeliculas.<span class="method">get</span>(position).<span class="method">getAhno</span>());
+        <span class="keyword">int</span> titulo = listaPeliculas.<span class="method">get</span>(position).<span class="method">getPoster</span>();
+        <span class="type">Drawable</span> poster = holder.imageView.<span class="method">getResources</span>().<span class="method">getDrawable</span>(titulo);
+        holder.imageView.<span class="method">setImageDrawable</span>(poster);
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="keyword">int</span> <span class="method">getItemCount</span>() {
+        <span class="keyword">return</span> listaPeliculas.<span class="method">size</span>();
+    }
+
+    <span class="keyword">class</span> <span class="type">ViewHolder</span> <span class="keyword">extends</span> <span class="type">RecyclerView.ViewHolder</span> <span class="keyword">implements</span> <span class="type">View.OnClickListener</span> {
+
+        <span class="type">ImageView</span> imageView;
+        <span class="type">TextView</span> textView1;
+        <span class="type">TextView</span> textView2;
+
+        <span class="keyword">public</span> <span class="method">ViewHolder</span>(<span class="annotation">@NonNull</span> <span class="type">View</span> itemView) {
+            <span class="keyword">super</span>(itemView);
+            imageView = itemView.<span class="method">findViewById</span>(<span class="type">R</span>.id.imageView);
+            textView1 = itemView.<span class="method">findViewById</span>(<span class="type">R</span>.id.textView1);
+            textView2 = itemView.<span class="method">findViewById</span>(<span class="type">R</span>.id.textView2);
+
+            itemView.<span class="method">setOnClickListener</span>(<span class="keyword">this</span>);
+        }
+
+        <span class="annotation">@Override</span>
+        <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">onClick</span>(<span class="type">View</span> v) {
+            <span class="type">Toast</span>.<span class="method">makeText</span>(v.<span class="method">getContext</span>(), listaPeliculas.<span class="method">get</span>(<span class="method">getAbsoluteAdapterPosition</span>()).<span class="method">getTitulo</span>(), <span class="type">Toast</span>.LENGTH_LONG).<span class="method">show</span>();
+            <span class="comment">//Intent intent = new Intent(v.getContext(), MainActivity2.class);</span>
+            <span class="comment">//v.getContext().startActivity(intent);</span>
+        }
+    }
+}</code></pre>
+    </div>
+
+    <h3>4. activity_main.xml (Layout de la Actividad Principal)</h3>
+    <p>
+        Este archivo XML define el layout de la actividad principal que contendrá el <code>RecyclerView</code>.
+        Es un simple <code>ConstraintLayout</code> que ocupa toda la pantalla y contiene un único <code>RecyclerView</code>.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span> <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/main"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">tools:context</span>=<span class="string">".MainActivity"</span>>
+
+    <<span class="xml-tag">androidx.recyclerview.widget.RecyclerView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/miVista"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span> />
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
+    </div>
+
+    <h3>5. lista_items.xml (Layout de Cada Ítem de la Lista)</h3>
+    <p>
+        Este archivo XML define el diseño visual de cada elemento individual dentro del <code>RecyclerView</code>.
+        Contiene un <code>ImageView</code> para el póster de la película y dos <code>TextView</code> para el título y el año.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/list_item"</span>
+    <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>>
+
+    <<span class="xml-tag">ImageView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/imageView"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"60dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"70dp"</span>
+        <span class="xml-attr-name">android:layout_marginStart</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:layout_marginBottom</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">app:layout_constraintBottom_toBottomOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:srcCompat</span>=<span class="string">"@android:mipmap/sym_def_app_icon"</span> />
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/textView1"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_marginStart</span>=<span class="string">"16dp"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:layout_marginEnd</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"TextView"</span>
+        <span class="xml-attr-name">android:textSize</span>=<span class="string">"20sp"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintHorizontal_bias</span>=<span class="string">"0.972"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span> />
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/textView2"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_marginStart</span>=<span class="string">"88dp"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"16dp"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"TextView"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/textView1"</span> />
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
+    </div>
+    <p class="intro-text">
+        Esta implementación proporciona una visión completa de cómo configurar un <code>RecyclerView</code>
+        para mostrar una lista de datos personalizados, en este caso, información de películas,
+        resaltando la modularidad y eficiencia de este componente de UI en Android.
+    </p>
+</body>
+</html>

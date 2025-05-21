@@ -12,6 +12,40 @@
             background-color: #f9f9f9;
             color: #333;
         }
+        /* Nuevo contenedor para el título y el botón */
+        .header-container {
+            display: flex;
+            justify-content: space-between; /* Pushes items to ends */
+            align-items: center; /* Vertically centers them */
+            margin-bottom: 20px; /* Add some space below the header */
+            flex-wrap: wrap; /* Allows wrapping on smaller screens */
+        }
+        .header-container h1 {
+            margin-top: 0;
+            margin-bottom: 0;
+            flex-grow: 1; /* Allow h1 to take up available space */
+            padding-right: 15px; /* Space between title and button */
+        }
+
+        /* Estilos para el nuevo botón de navegación */
+        .nav-button {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #007bff; /* Un azul agradable */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            white-space: nowrap; /* Previene que el texto del botón se rompa */
+            margin-top: 5px; /* Pequeño ajuste para centrado vertical si h1 tiene márgenes */
+            margin-bottom: 5px;
+        }
+
+        .nav-button:hover {
+            background-color: #0056b3;
+        }
+
         .code-container {
             background-color: #2d2d2d; /* Color de fondo oscuro para el bloque de código */
             color: #cccccc; /* Color de texto claro para el código */
@@ -60,7 +94,10 @@
 </head>
 <body>
 
-    <h1>Android Studio Intents, aprende lo básico</h1>
+    <div class="header-container">
+        <h1>Android Studio Intents, aprende lo básico</h1>
+        <a href="recyclerview.html" class="nav-button">Ir a RecyclerView Detalles</a>
+    </div>
 
     <h2>MainActivity</h2>
     <p class="intro-text">
