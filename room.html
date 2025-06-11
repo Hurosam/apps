@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Database en Android</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #6c757d; /* Un gris */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        .code-container {
+            background-color: #2d2d2d;
+            color: #cccccc;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        .code-container pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .keyword { color: #cc7832; font-weight: bold; }
+        .type { color: #6897bb; }
+        .string { color: #6a8759; }
+        .comment { color: #808080; font-style: italic; }
+        .method { color: #ffc66d; }
+        .number { color: #6897bb; }
+        .annotation { color: #bbb529; }
+        .xml-tag { color: #e83e8c; font-weight: bold; }
+        .xml-attr-name { color: #6f42c1; }
+        h2 {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+        h3 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 3px;
+            margin-top: 25px;
+        }
+        .intro-text {
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #555;
+        }
+        .important-note {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            color: #856404;
+            border-radius: 4px;
+        }
+        .class-declaration-highlight {
+            background-color: #4a4a4a;
+            border: 1px solid #666666;
+            padding: 5px 8px;
+            display: inline-block;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">Volver a la Página Principal</a>
+    <h1>Introducción a Room Database en Android</h1>
+    <p class="intro-text">
+        **Room** es una capa de abstracción sobre SQLite que forma parte de las Android Jetpack libraries.
+        Simplifica la interacción con la base de datos local al proporcionar una interfaz orientada a objetos,
+        verificación en tiempo de compilación de las consultas SQL, y soporte para LiveData y RxJava.
+        Esto reduce la cantidad de código repetitivo y repetitivo que tendrías que escribir usando directamente SQLite.
+    </p>
+
+    <div class="important-note">
+        <strong>¡Importante! Dependencias en `build.gradle (Module: app)`:</strong>
+        Para usar Room, debes añadir las siguientes dependencias en tu archivo `build.gradle (Module: app)`:
+        <pre><code>implementation 'androidx.room:room-runtime:2.6.1'
+annotationProcessor 'androidx.room:room-compiler:2.6.1'
+// Para Kotlin, usar 'kapt' en lugar de 'annotationProcessor'
+// kapt 'androidx.room:room-compiler:2.6.1'</code></pre>
+        (Asegúrate de usar la versión más reciente disponible, en este ejemplo es 2.6.1)
+    </div>
+
+    <h2>Componentes Clave de Room:</h2>
+    <ul>
+        <li><b>Entity (Entidad):</b> Representa una tabla en la base de datos. Una clase de datos anotada con `@Entity`.</li>
+        <li><b>DAO (Data Access Object):</b> Una interfaz que define los métodos para interactuar con la base de datos (insertar, consultar, actualizar, eliminar). Anotada con `@Dao`.</li>
+        <li><b>Database (Base de Datos):</b> Una clase abstracta que extiende `RoomDatabase` y actúa como el punto de acceso principal a la base de datos. Anotada con `@Database`.</li>
+    </ul>
+
+    <h2>Ejemplo de Implementación con Room Database (Lista de Películas)</h2>
+    <p class="intro-text">
+        Este ejemplo demuestra cómo integrar Room Database en una aplicación Android para gestionar una lista de películas.
+        Incluye la definición de la entidad `Pelicula`, la interfaz `PeliculaDao` para las operaciones de la base de datos,
+        la clase `AppDatabase` para inicializar la base de datos, y cómo `MainActivity` y `MainActivity2` interactúan con ella.
+    </p>
+
+    <h3>1. Pelicula (Entity - Modelo de Datos para Room)</h3>
+    <p>
+        La clase `Pelicula` ahora se define como una **Entidad de Room** mediante la anotación `@Entity`.
+        Cada instancia de `Pelicula` corresponderá a una fila en la tabla "peliculas" de la base de datos.
+        `@PrimaryKey` define la clave primaria, y `autoGenerate = true` le permite a Room generar automáticamente el ID.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.room.Entity</span>;
+<span class="keyword">import</span> <span class="type">androidx.room.PrimaryKey</span>;
+
+<span class="class-declaration-highlight"><span class="annotation">@Entity</span> (tableName = <span class="string">"peliculas"</span>)
+<span class="keyword">public</span> <span class="keyword">class</span> <span class="type">Pelicula</span></span> {
+    <span class="annotation">@PrimaryKey</span> (<span class="method">autoGenerate</span> = <span class="keyword">true</span>)
+    <span class="keyword">public</span> <span class="keyword">int</span> uid; <span class="comment">// Clave primaria autogenerada por Room</span>
+    <span class="keyword">private</span> <span class="type">String</span> titulo;
+    <span class="keyword">private</span> <span class="type">String</span> ahno;
+    <span class="keyword">private</span> <span class="keyword">int</span> poster; <span class="comment">// Referencia al ID del recurso drawable</span>
+
+
+    <span class="keyword">public</span> <span class="method">Pelicula</span>(<span class="type">String</span> titulo, <span class="type">String</span> ahno, <span class="keyword">int</span> poster) {
+        <span class="keyword">this</span>.titulo = titulo;
+        <span class="keyword">this</span>.ahno = ahno;
+        <span class="keyword">this</span>.poster = poster;
+    }
+
+    <span class="keyword">public</span> <span class="type">String</span> <span class="method">getTitulo</span>() {
+        <span class="keyword">return</span> titulo;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setTitulo</span>(<span class="type">String</span> titulo) {
+        <span class="keyword">this</span>.titulo = titulo;
+    }
+
+    <span class="keyword">public</span> <span class="type">String</span> <span class="method">getAhno</span>() {
+        <span class="keyword">return</span> ahno;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setAhno</span>(<span class="type">String</span> ahno) {
+        <span class="keyword">this</span>.ahno = ahno;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">int</span> <span class="method">getPoster</span>() {
+        <span class="keyword">return</span> poster;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setPoster</span>(<span class="keyword">int</span> poster) {
+        <span class="keyword">this</span>.poster = poster;
+    }
+}</code></pre>
+    </div>
+
+    <h3>2. PeliculaDao (DAO - Data Access Object)</h3>
+    <p>
+        Esta interfaz define los métodos que usarás para interactuar con la base de datos de películas.
+        Las anotaciones como `@Query` (para consultas SQL directas) y `@Insert` (para inserciones)
+        permiten a Room generar el código necesario en tiempo de compilación.
+        También se podrían añadir `@Update` y `@Delete` para otras operaciones.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.room.Dao</span>;
+<span class="keyword">import</span> <span class="type">androidx.room.Insert</span>;
+<span class="keyword">import</span> <span class="type">androidx.room.Query</span>;
+<span class="keyword">import</span> <span class="type">androidx.room.Update</span>; <span class="comment">// Añadido para completar el ejemplo</span>
+<span class="keyword">import</span> <span class="type">androidx.room.Delete</span>; <span class="comment">// Añadido para completar el ejemplo</span>
+
+<span class="keyword">import</span> <span class="type">java.util.List</span>;
+
+<span class="class-declaration-highlight"><span class="annotation">@Dao</span>
+<span class="keyword">public</span> <span class="keyword">interface</span> <span class="type">PeliculaDao</span></span> {
+    <span class="comment">// Consulta para obtener todas las películas de la tabla</span>
+    <span class="annotation">@Query</span>(<span class="string">"SELECT * FROM peliculas"</span>)
+    <span class="type">List</span><<span class="type">Pelicula</span>> <span class="method">getAll</span>();
+
+    <span class="comment">// Inserta una o varias películas en la base de datos. Si hay conflicto, se reemplaza.</span>
+    <span class="annotation">@Insert</span>
+    <span class="keyword">void</span> <span class="method">insertAll</span>(<span class="type">Pelicula</span> ... peliculas);
+
+    <span class="comment">// Actualiza una o varias películas existentes en la base de datos</span>
+    <span class="annotation">@Update</span>
+    <span class="keyword">void</span> <span class="method">update</span>(<span class="type">Pelicula</span> ... peliculas);
+
+    <span class="comment">// Elimina una o varias películas de la base de datos</span>
+    <span class="annotation">@Delete</span>
+    <span class="keyword">void</span> <span class="method">delete</span>(<span class="type">Pelicula</span> ... peliculas);
+
+    <span class="comment">// Puedes añadir otras consultas personalizadas, por ejemplo, para buscar por título</span>
+    <span class="annotation">@Query</span>(<span class="string">"SELECT * FROM peliculas WHERE titulo LIKE :search"</span>)
+    <span class="type">List</span><<span class="type">Pelicula</span>> <span class="method">findByTitle</span>(<span class="type">String</span> search);
+}</code></pre>
+    </div>
+
+    <h3>3. AppDatabase (Database Class)</h3>
+    <p>
+        Esta clase abstracta extiende `RoomDatabase` y es el punto de entrada principal a la base de datos.
+        Define las entidades (tablas) que contendrá la base de datos y su versión.
+        Contiene un método abstracto para acceder al DAO y un patrón Singleton para asegurar
+        que solo haya una instancia de la base de datos en la aplicación.
+        `allowMainThreadQueries()` se usa aquí para simplicidad en el ejemplo, pero en aplicaciones reales
+        se recomienda hacer las operaciones de DB en un hilo de fondo.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="keyword">import</span> <span class="type">android.content.Context</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.room.Database</span>;
+<span class="keyword">import</span> <span class="type">androidx.room.Room</span>;
+<span class="keyword">import</span> <span class="type">androidx.room.RoomDatabase</span>;
+
+<span class="class-declaration-highlight"><span class="annotation">@Database</span>(entities = {<span class="type">Pelicula</span>.<span class="keyword">class</span>},  version = <span class="number">1</span>, exportSchema = <span class="keyword">false</span>) <span class="comment">// exportSchema es opcional, lo puse en false para este ejemplo</span>
+<span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="type">AppDatabase</span> <span class="keyword">extends</span> <span class="type">RoomDatabase</span></span> {
+    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">PeliculaDao</span> <span class="method">peliculaDao</span>();
+
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">AppDatabase</span> INSTANCIA;
+
+    <span class="comment">// Método para obtener la instancia Singleton de la base de datos</span>
+    <span class="keyword">static</span> <span class="type">AppDatabase</span> <span class="method">getInstance</span>(<span class="type">Context</span> context){
+        <span class="keyword">if</span> (INSTANCIA == <span class="keyword">null</span>){
+            <span class="comment">// Sincronizado para evitar múltiples instancias en entornos multi-hilo</span>
+            <span class="keyword">synchronized</span> (<span class="type">AppDatabase</span>.<span class="keyword">class</span>){
+                <span class="keyword">if</span> (INSTANCIA == <span class="keyword">null</span>){
+                    INSTANCIA = <span class="type">Room</span>.<span class="method">databaseBuilder</span>(
+                            context.<span class="method">getApplicationContext</span>(),
+                            <span class="type">AppDatabase</span>.<span class="keyword">class</span>,
+                            <span class="string">"peliculasbd"</span>) <span class="comment">// Nombre del archivo de la base de datos</span>
+                            .<span class="method">allowMainThreadQueries</span>() <span class="comment">// Permite ejecutar consultas en el hilo principal (solo para desarrollo/pruebas)</span>
+                            .<span class="method">build</span>();
+                }
+            }
+        }
+        <span class="keyword">return</span> INSTANCIA;
+    }
+}</code></pre>
+    </div>
+
+    <h3>4. MainActivity (Room Integration con RecyclerView)</h3>
+    <p>
+        Esta `MainActivity` ahora utiliza `Room` para obtener la lista de películas en lugar de una `ArrayList` estática.
+        Se inicializa la base de datos, se insertan datos de ejemplo (si no existen) y luego se recuperan
+        para poblar el `RecyclerView`.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.util.Log</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.LinearLayoutManager</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.RecyclerView</span>;
+<span class="keyword">import</span> <span class="type">androidx.room.Room</span>; <span class="comment">// Importación necesaria para Room</span>
+
+
+<span class="keyword">import</span> <span class="type">java.util.ArrayList</span>;
+<span class="keyword">import</span> <span class="type">java.util.List</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+    <span class="type">RecyclerView</span> recyclerView;
+    <span class="type">RecyclerAdapter</span> recyclerAdapter;
+    <span class="type">List</span><<span class="type">Pelicula</span>> listaPeliculas; <span class="comment">// Ahora contendrá datos de la DB</span>
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+
+        <span class="comment">// Obtener la instancia de la base de datos y el DAO</span>
+        <span class="type">PeliculaDao</span> db = <span class="type">AppDatabase</span>.<span class="method">getInstance</span>(<span class="keyword">this</span>).<span class="method">peliculaDao</span>();
+
+        <span class="comment">// Insertar datos de ejemplo si la base de datos está vacía</span>
+        <span class="keyword">if</span> (db.<span class="method">getAll</span>().<span class="method">isEmpty</span>()) {
+            db.<span class="method">insertAll</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"La Momia"</span>, <span class="string">"1999"</span>, <span class="type">R</span>.drawable.momia));
+            db.<span class="method">insertAll</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"Harry Potter y el Caliz de Fuego"</span>,<span class="string">"2005"</span>,<span class="type">R</span>.drawable.hp));
+            db.<span class="method">insertAll</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"El señor de los anillos"</span>,<span class="string">"2001"</span>,<span class="type">R</span>.drawable.anillos));
+            db.<span class="method">insertAll</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"Avengers Endgame"</span>, <span class="string">"2019"</span>, <span class="type">R</span>.drawable.avengers));
+            db.<span class="method">insertAll</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"Midsommar"</span>,<span class="string">"2019"</span>,<span class="type">R</span>.drawable.midsommar));
+            <span class="type">Log</span>.<span class="method">i</span>(<span class="string">"Database"</span>, <span class="string">"Datos insertados por primera vez."</span>);
+        }
+
+        <span class="comment">// Obtener todas las películas de la base de datos</span>
+        listaPeliculas = db.<span class="method">getAll</span>();
+        <span class="type">Log</span>.<span class="method">i</span>(<span class="string">"Peliculas"</span>, <span class="string">"Cargadas "</span> + listaPeliculas.<span class="method">size</span>() + <span class="string">" películas de la DB."</span>);
+
+
+        recyclerView = <span class="method">findViewById</span>(<span class="type">R</span>.id.miVista);
+        recyclerAdapter = <span class="keyword">new</span> <span class="type">RecyclerAdapter</span>(listaPeliculas);
+
+        recyclerView.<span class="method">setLayoutManager</span>(<span class="keyword">new</span> <span class="type">LinearLayoutManager</span>(<span class="keyword">this</span>));
+        recyclerView.<span class="method">setAdapter</span>(recyclerAdapter);
+    }
+
+    <span class="comment">// Al volver a la actividad, refrescar la lista para ver los cambios</span>
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onResume</span>() {
+        <span class="keyword">super</span>.<span class="method">onResume</span>();
+        <span class="comment">// Vuelve a cargar los datos de la base de datos y notifica al adaptador si la lista ha cambiado</span>
+        <span class="type">PeliculaDao</span> db = <span class="type">AppDatabase</span>.<span class="method">getInstance</span>(<span class="keyword">this</span>).<span class="method">peliculaDao</span>();
+        listaPeliculas = db.<span class="method">getAll</span>();
+        recyclerAdapter = <span class="keyword">new</span> <span class="type">RecyclerAdapter</span>(listaPeliculas);
+        recyclerView.<span class="method">setAdapter</span>(recyclerAdapter);
+        <span class="type">Log</span>.<span class="method">i</span>(<span class="string">"Peliculas"</span>, <span class="string">"Lista refrescada en onResume."</span>);
+    }
+}</code></pre>
+    </div>
+
+    <h3>5. MainActivity2 (Para Añadir Películas a la Base de Datos)</h3>
+    <p>
+        Esta actividad es un formulario simple para que el usuario pueda añadir nuevas películas a la base de datos.
+        Recoge el título, año y nombre de archivo (para el póster) y los inserta en la base de datos a través del DAO.
+        Después de guardar, regresa a `MainActivity` para mostrar la lista actualizada.
+        Nota: `etArchivo` espera el nombre del drawable (ej. "momia"), y se usa `getResources().getIdentifier` para obtener su ID.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="keyword">import</span> <span class="type">android.content.Intent</span>;
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.view.View</span>;
+<span class="keyword">import</span> <span class="type">android.widget.EditText</span>;
+<span class="keyword">import</span> <span class="type">android.widget.Toast</span>; <span class="comment">// Añadido para mensajes Toast</span>
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity2</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+
+    <span class="type">EditText</span> etTitulo, etAnho, etArchivo;
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main2);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+
+        etTitulo = <span class="method">findViewById</span>(<span class="type">R</span>.id.etTitulo);
+        etAnho = <span class="method">findViewById</span>(<span class="type">R</span>.id.etAnho);
+        etArchivo = <span class="method">findViewById</span>(<span class="type">R</span>.id.etArchivo);
+    }
+
+    <span class="comment">// Método para guardar una nueva película en la base de datos</span>
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">Guardar</span>(<span class="type">View</span> view) {
+        <span class="type">String</span> titulo = etTitulo.<span class="method">getText</span>().<span class="method">toString</span>();
+        <span class="type">String</span> anho = etAnho.<span class="method">getText</span>().<span class="method">toString</span>();
+        <span class="type">String</span> archivo = etArchivo.<span class="method">getText</span>().<span class="method">toString</span>();
+
+        <span class="comment">// Validación básica de entrada</span>
+        <span class="keyword">if</span> (titulo.<span class="method">isEmpty</span>() || anho.<span class="method">isEmpty</span>() || archivo.<span class="method">isEmpty</span>()) {
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"Por favor, complete todos los campos."</span>, <span class="type">Toast</span>.LENGTH_SHORT).<span class="method">show</span>();
+            <span class="keyword">return</span>;
+        }
+
+        <span class="comment">// Obtener el ID del recurso drawable a partir de su nombre (ej. "momia")</span>
+        <span class="keyword">int</span> drawable = <span class="method">getResources</span>().<span class="method">getIdentifier</span>(archivo, <span class="string">"drawable"</span>, <span class="method">getPackageName</span>());
+
+        <span class="keyword">if</span> (drawable == <span class="number">0</span>) { <span class="comment">// getIdentifier devuelve 0 si no encuentra el recurso</span>
+            <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"El archivo drawable '"</span> + archivo + <span class="string">"' no fue encontrado."</span>, <span class="type">Toast</span>.LENGTH_LONG).<span class="method">show</span>();
+            <span class="keyword">return</span>;
+        }
+
+        <span class="comment">// Obtener la instancia del DAO y guardar la película</span>
+        <span class="type">PeliculaDao</span> db = <span class="type">AppDatabase</span>.<span class="method">getInstance</span>(<span class="keyword">this</span>).<span class="method">peliculaDao</span>();
+        db.<span class="method">insertAll</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(titulo, anho, drawable));
+
+        <span class="type">Toast</span>.<span class="method">makeText</span>(<span class="keyword">this</span>, <span class="string">"Película guardada: "</span> + titulo, <span class="type">Toast</span>.LENGTH_SHORT).<span class="method">show</span>();
+
+        <span class="comment">// Regresar a MainActivity para ver la lista actualizada</span>
+        <span class="type">Intent</span> i = <span class="keyword">new</span> <span class="type">Intent</span>(<span class="type">MainActivity2</span>.<span class="keyword">this</span>, <span class="type">MainActivity</span>.<span class="keyword">class</span>);
+        <span class="method">startActivity</span>(i);
+        <span class="method">finish</span>(); <span class="comment">// Cerrar esta actividad para que MainActivity sea el top de la pila</span>
+    }
+}</code></pre>
+    </div>
+
+    <h3>6. RecyclerAdapter (Uso en Room)</h3>
+    <p class="intro-text">
+        El `RecyclerAdapter` utilizado en esta implementación de Room es el mismo que el proporcionado anteriormente en `index.html`
+        en la sección de `MainActivity5`. La única diferencia es que los datos (`List<Pelicula>`)
+        ahora provienen de la base de datos `Room` en lugar de una lista estática. Su lógica de visualización de ítems
+        se mantiene igual.
+        Puedes encontrar su código completo <a href="index.html#miadapter-section" style="color:#007bff; text-decoration: underline;">aquí (enlace a sección MiAdapter en index.html)</a>.
+    </p>
+
+    <h3>7. Layout: activity_main.xml (Para la MainActivity con RecyclerView)</h3>
+    <p>
+        Este layout es para la `MainActivity` que muestra el `RecyclerView` con las películas cargadas desde Room.
+        Es similar al `activity_main.xml` del ejemplo original de RecyclerView, simplemente un `RecyclerView` que ocupa la pantalla.
+    </p>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span> <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/main"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">tools:context</span>=<span class="string">".MainActivity"</span>>
+
+    <<span class="xml-tag">androidx.recyclerview.widget.RecyclerView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/miVista"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span> />
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
+    </div>
+
+    <h3>8. Layout: activity_main2.xml (Para la MainActivity2 de Añadir Películas)</h3>
+    <p>
+        Este layout proporciona la interfaz de usuario para que el usuario ingrese la información de una nueva película:
+        título, año y el nombre del archivo drawable para el póster.
+    </p>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span> <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/main"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">padding</span>=<span class="string">"16dp"</span>
+    <span class="xml-attr-name">tools:context</span>=<span class="string">".MainActivity2"</span>>
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/tvAddMovieTitle"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Añadir Nueva Película"</span>
+        <span class="xml-attr-name">textSize</span>=<span class="string">"24sp"</span>
+        <span class="xml-attr-name">textStyle</span>=<span class="string">"bold"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"32dp"</span> />
+
+    <<span class="xml-tag">EditText</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/etTitulo"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:hint</span>=<span class="string">"Título de la Película"</span>
+        <span class="xml-attr-name">inputType</span>=<span class="string">"textCapSentences"</span>
+        <span class="xml-attr-name">minHeight</span>=<span class="string">"48dp"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/tvAddMovieTitle"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"32dp"</span> />
+
+    <<span class="xml-tag">EditText</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/etAnho"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:hint</span>=<span class="string">"Año (ej. 1999)"</span>
+        <span class="xml-attr-name">inputType</span>=<span class="string">"number"</span>
+        <span class="xml-attr-name">minHeight</span>=<span class="string">"48dp"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/etTitulo"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"16dp"</span> />
+
+    <<span class="xml-tag">EditText</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/etArchivo"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:hint</span>=<span class="string">"Nombre del archivo de imagen (ej. 'momia')"</span>
+        <span class="xml-attr-name">inputType</span>=<span class="string">"textNoSuggestions"</span>
+        <span class="xml-attr-name">minHeight</span>=<span class="string">"48dp"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/etAnho"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"16dp"</span> />
+
+    <<span class="xml-tag">Button</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/buttonGuardar"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">0dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"Guardar Película"</span>
+        <span class="xml-attr-name">onClick</span>=<span class="string">"Guardar"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/etArchivo"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"32dp"</span> />
+
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
+    </div>
+
+    <h3>9. Layout: lista_items.xml (Layout de cada ítem del RecyclerView)</h3>
+    <p>
+        Este es el layout que define la apariencia de cada elemento individual en el `RecyclerView`.
+        Es el mismo layout que se utiliza en el ejemplo original de RecyclerView, pero se incluye aquí para
+        la completitud del ejemplo de Room, ya que `MainActivity` (versión Room) sigue usando este layout
+        para mostrar las películas.
+    </p>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/list_item"</span>
+    <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>>
+
+    <<span class="xml-tag">ImageView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/imageView"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"60dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"70dp"</span>
+        <span class="xml-attr-name">android:layout_marginStart</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:layout_marginBottom</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">app:layout_constraintBottom_toBottomOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:srcCompat</span>=<span class="string">"@android:mipmap/sym_def_app_icon"</span> />
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/textView1"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_marginStart</span>=<span class="string">"16dp"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:layout_marginEnd</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"TextView"</span>
+        <span class="xml-attr-name">android:textSize</span>=<span class="string">"20sp"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintHorizontal_bias</span>=<span class="string">"0.972"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span> />
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/textView2"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_marginStart</span>=<span class="string">"88dp"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"16dp"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"TextView"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/textView1"</span> />
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
+    </div>
+
+</body>
+</html>

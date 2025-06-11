@@ -12,22 +12,29 @@
             background-color: #f9f9f9;
             color: #333;
         }
-        /* Nuevo contenedor para el título y el botón */
+        /* Nuevo contenedor para el título y los botones */
         .header-container {
             display: flex;
             justify-content: space-between; /* Pushes items to ends */
             align-items: center; /* Vertically centers them */
             margin-bottom: 20px; /* Add some space below the header */
             flex-wrap: wrap; /* Allows wrapping on smaller screens */
+            gap: 10px; /* Espacio entre los botones */
         }
         .header-container h1 {
             margin-top: 0;
             margin-bottom: 0;
             flex-grow: 1; /* Allow h1 to take up available space */
-            padding-right: 15px; /* Space between title and button */
+            padding-right: 15px; /* Space between title and buttons */
         }
 
-        /* Estilos para el nuevo botón de navegación */
+        /* Estilos para los nuevos botones de navegación */
+        .nav-buttons-group {
+            display: flex;
+            gap: 10px; /* Espacio entre los botones de navegación */
+            flex-wrap: wrap; /* Para que los botones se envuelvan si no hay espacio */
+        }
+
         .nav-button {
             display: inline-block;
             padding: 10px 15px;
@@ -38,8 +45,6 @@
             font-weight: bold;
             transition: background-color 0.3s ease;
             white-space: nowrap; /* Previene que el texto del botón se rompa */
-            margin-top: 5px; /* Pequeño ajuste para centrado vertical si h1 tiene márgenes */
-            margin-bottom: 5px;
         }
 
         .nav-button:hover {
@@ -101,7 +106,10 @@
 
     <div class="header-container">
         <h1>Android Studio Intents, aprende lo básico</h1>
-        <a href="recyclerview.html" class="nav-button">Ir a RecyclerView Detalles</a>
+        <div class="nav-buttons-group">
+            <a href="recyclerview.html" class="nav-button">Ir a RecyclerView Detalles</a>
+            <a href="room.html" class="nav-button">Ir a Room Database</a>
+        </div>
     </div>
 
     <h2>MainActivity</h2>
@@ -529,7 +537,7 @@
     </div>
 
     <!-- *************************************************************** -->
-    <!-- NUEVAS SECCIONES AÑADIDAS -->
+    <!-- SECCIONES AÑADIDAS ANTERIORMENTE -->
     <!-- *************************************************************** -->
 
     <h1>Proyectos Adicionales</h1>
@@ -972,9 +980,9 @@
         <span class="xml-attr-name">android:hint</span>=<span class="string">"Primer número"</span>
         <span class="xml-attr-name">android:inputType</span>=<span class="string">"numberSigned"</span>
         <span class="xml-attr-name">android:minHeight</span>=<span class="string">"48dp"</span>
-        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
-        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
         <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/textViewTitle"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
         <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"32dp"</span>/>
 
     <<span class="xml-tag">EditText</span>
@@ -984,9 +992,9 @@
         <span class="xml-attr-name">android:hint</span>=<span class="string">"Segundo número"</span>
         <span class="xml-attr-name">android:inputType</span>=<span class="string">"numberSigned"</span>
         <span class="xml-attr-name">android:minHeight</span>=<span class="string">"48dp"</span>
-        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
-        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
         <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/editTextNum1"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
         <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"16dp"</span>/>
 
     <<span class="xml-tag">Button</span>
