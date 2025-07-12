@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uso de Volley para API REST</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; margin: 20px; background-color: #f9f9f9; color: #333; }
+        .back-button { display: inline-block; padding: 10px 15px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px; font-weight: bold; transition: background-color 0.3s ease; }
+        .back-button:hover { background-color: #5a6268; }
+        .code-container { background-color: #2d2d2d; color: #cccccc; padding: 15px; border-radius: 8px; overflow-x: auto; font-family: "Courier New", Courier, monospace; font-size: 0.9em; margin-bottom: 20px; }
+        .code-container pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+        .keyword { color: #cc7832; font-weight: bold; } .type { color: #6897bb; } .string { color: #6a8759; } .comment { color: #808080; font-style: italic; } .method { color: #ffc66d; } .number { color: #6897bb; } .annotation { color: #bbb529; }
+        h2 { border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 40px; } h3 { border-bottom: 1px solid #eee; padding-bottom: 3px; margin-top: 25px; }
+        .intro-text { margin-bottom: 15px; font-style: italic; color: #555; }
+        .important-note { background-color: #d1ecf1; border-left: 5px solid #0c5460; padding: 10px 15px; margin-bottom: 20px; color: #0c5460; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <a href="documentacion_android.html" class="back-button">← Volver a la Documentación Principal</a>
+    <h1>Consumir APIs REST con Volley</h1>
+    <p class="intro-text">
+        <strong>Volley</strong> es una librería de red para Android que facilita y acelera la realización de peticiones a servicios web. Es ideal para operaciones comunes como obtener datos JSON, ya que maneja automáticamente las operaciones en hilos secundarios.
+    </p>
+
+    <h2>Paso 1: Añadir la Dependencia y Permisos</h2>
+    <p>Primero, añade Volley a tu archivo <code>build.gradle (Module: app)</code>.</p>
+    <div class="code-container"><pre><code>dependencies {
+    ...
+    implementation 'com.android.volley:volley:1.2.1'
+}</code></pre></div>
+    <p>Luego, asegúrate de que tu aplicación tiene permiso para acceder a internet. Añade esta línea a tu archivo <code>AndroidManifest.xml</code>, fuera de la etiqueta <code><application></code>.</p>
+        <p>uses-permission android:name="android.permission.INTERNET"</p>
+    <div class="code-container"><pre><code><uses-permission android:name="android.permission.INTERNET" /></code></pre></div>
+
+    <h2>Paso 2: Realizar una Petición GET para Datos JSON</h2>
+    <p>
+        La mayoría de las APIs modernas devuelven datos en formato JSON. Para trabajar con ellas, Volley ofrece <strong><code>JsonArrayRequest</code></strong> (si la respuesta empieza con `[`) y <strong><code>JsonObjectRequest</code></strong> (si la respuesta empieza con `{`).
+    </p>
+    <h3>Ejemplo: Obtener Datos de un País</h3>
+    <p>Usaremos la API pública <code>restcountries.com</code> para obtener información sobre Perú. La URL <code>https://restcountries.com/v3.1/name/peru</code> devuelve un array JSON.</p>
+    
+    <h4>MainActivity.java (Ejemplo GET con JsonArrayRequest)</h4>
+    <div class="code-container"><pre><code><span class="keyword">package</span> com.example.volleyexample;
+
+<span class="keyword">import</span> android.os.Bundle;
+<span class="keyword">import</span> android.widget.Button;
+<span class="keyword">import</span> android.widget.TextView;
+<span class="keyword">import</span> android.widget.Toast;
+<span class="keyword">import</span> androidx.appcompat.app.AppCompatActivity;
+
+<span class="keyword">import</span> com.android.volley.Request;
+<span class="keyword">import</span> com.android.volley.RequestQueue;
+<span class="keyword">import</span> com.android.volley.toolbox.JsonArrayRequest;
+<span class="keyword">import</span> com.android.volley.toolbox.Volley;
+
+<span class="keyword">import</span> org.json.JSONException;
+<span class="keyword">import</span> org.json.JSONObject;
+
+<span class="keyword">import</span> java.util.Locale;
+
+<span class="keyword">public class</span> <span class="type">MainActivity</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span> {
+
+    <span class="keyword">private</span> <span class="type">TextView</span> tvNombrePais, tvCapital, tvPoblacion;
+    <span class="keyword">private</span> <span class="type">RequestQueue</span> queue;
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        tvNombrePais = findViewById(R.id.tvNombrePais);
+        tvCapital = findViewById(R.id.tvCapital);
+        tvPoblacion = findViewById(R.id.tvPoblacion);
+        <span class="type">Button</span> btnBuscarPais = findViewById(R.id.btnBuscarPais);
+
+        <span class="comment">// 1. Inicializar la cola de peticiones de Volley</span>
+        queue = Volley.newRequestQueue(<span class="keyword">this</span>);
+
+        btnBuscarPais.setOnClickListener(v -> buscarPais(<span class="string">"peru"</span>));
+    }
+
+    <span class="keyword">private void</span> <span class="method">buscarPais</span>(<span class="type">String</span> nombrePais) {
+        <span class="type">String</span> url = <span class="string">"https://restcountries.com/v3.1/name/"</span> + nombrePais;
+
+        <span class="comment">// 2. Crear la petición, usando JsonArrayRequest porque la respuesta es un array '[...]'</span>
+        <span class="type">JsonArrayRequest</span> jsonArrayRequest = <span class="keyword">new</span> <span class="type">JsonArrayRequest</span>(
+                <span class="type">Request</span>.<span class="type">Method</span>.GET,
+                url,
+                <span class="keyword">null</span>, <span class="comment">// No se envía cuerpo en la petición GET</span>
+                response -> {
+                    <span class="comment">// 3. Éxito: Este bloque se ejecuta si la petición es correcta</span>
+                    <span class="keyword">try</span> {
+                        <span class="comment">// Obtenemos el primer objeto del array</span>
+                        <span class="type">JSONObject</span> paisObjeto = response.getJSONObject(0);
+
+                        <span class="comment">// Extraemos los datos por su nombre (llave)</span>
+                        <span class="type">String</span> nombreComun = paisObjeto.getJSONObject(<span class="string">"name"</span>).getString(<span class="string">"common"</span>);
+                        <span class="type">String</span> capital = paisObjeto.getJSONArray(<span class="string">"capital"</span>).getString(0);
+                        <span class="keyword">int</span> poblacion = paisObjeto.getInt(<span class="string">"population"</span>);
+
+                        <span class="comment">// 4. Mostramos los datos en los TextViews</span>
+                        tvNombrePais.setText(<span class="string">"Nombre del País: "</span> + nombreComun);
+                        tvCapital.setText(<span class="string">"Capital: "</span> + capital);
+                        tvPoblacion.setText(<span class="string">"Población: "</span> + String.format(Locale.getDefault(), <span class="string">"%,d"</span>, poblacion));
+
+                    } <span class="keyword">catch</span> (<span class="type">JSONException</span> e) {
+                        e.printStackTrace();
+                        Toast.makeText(<span class="keyword">this</span>, <span class="string">"Error al procesar los datos"</span>, Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    <span class="comment">// 5. Error: Este bloque se ejecuta si algo sale mal</span>
+                    error.printStackTrace();
+                    Toast.makeText(<span class="keyword">this</span>, <span class="string">"Error en la petición: "</span> + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+        );
+
+        <span class="comment">// 6. Añadir la petición a la cola para que se ejecute</span>
+        queue.add(jsonArrayRequest);
+    }
+}</code></pre></div>
+    
+    <h3>Paso 3: Layout XML Correspondiente</h3>
+    <p>Este es un ejemplo del archivo <code>activity_main.xml</code> que necesitarías para el código anterior, con un botón para iniciar la petición y tres TextViews para mostrar la información específica.</p>
+    <div class="code-container"><pre><code><?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center_horizontal">
+
+    <Button
+        android:id="@+id/btnBuscarPais"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Buscar Datos de Perú" />
+
+    <TextView
+        android:id="@+id/tvNombrePais"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Nombre del País: -"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvCapital"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Capital: -"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/tvPoblacion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Población: -"
+        android:textSize="18sp" />
+
+</LinearLayout></code></pre></div>
+
+</body>
+</html>
