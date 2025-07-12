@@ -1,0 +1,393 @@
+html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Estática con RecyclerView</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #6c757d; /* Un gris */
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        .code-container {
+            background-color: #2d2d2d;
+            color: #cccccc;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        .code-container pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .keyword { color: #cc7832; font-weight: bold; }
+        .type { color: #6897bb; }
+        .string { color: #6a8759; }
+        .comment { color: #808080; font-style: italic; }
+        .method { color: #ffc66d; }
+        .number { color: #6897bb; }
+        .annotation { color: #bbb529; }
+        .xml-tag { color: #e83e8c; font-weight: bold; }
+        .xml-attr-name { color: #6f42c1; }
+        h2 {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+        h3 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 3px;
+            margin-top: 25px;
+        }
+        .intro-text {
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #555;
+        }
+        .class-declaration-highlight {
+            background-color: #4a4a4a;
+            border: 1px solid #666666;
+            padding: 5px 8px;
+            display: inline-block;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">Volver a la Página Principal</a>
+    <h1>Implementación de una Lista Estática con RecyclerView en Android</h1>
+    <p class="intro-text">
+        Una **lista estática** en Android se refiere a una colección de datos que se define
+        y se carga directamente en el código de la aplicación al momento de su inicialización,
+        en lugar de ser obtenida de una fuente externa como una base de datos o una API de red.
+        Es útil para mostrar una cantidad fija y conocida de ítems que no cambiarán durante la ejecución
+        o entre sesiones de la aplicación.
+    </p>
+    <p class="intro-text">
+        Aunque las listas estáticas no ofrecen la persistencia o la capacidad de actualización dinámica
+        de una base de datos (como Room) o una API, son excelentes para ejemplos sencillos o datos constantes.
+        En este ejemplo, utilizaremos `ArrayList` para mantener los datos y `RecyclerView` para mostrarlos eficientemente.
+    </p>
+
+    <h2>Componentes de la Implementación:</h2>
+
+    <h3>1. MainActivity (Configuración de la Lista Estática y RecyclerView)</h3>
+    <p>
+        Esta es la actividad principal que crea y gestiona la lista de películas. La `listaPeliculas`
+        es un `ArrayList` que se inicializa con objetos `Pelicula` directamente en el método `onCreate()`.
+        Luego, esta lista se pasa a un `RecyclerAdapter` para ser mostrada en el `RecyclerView`.
+        Esta `MainActivity` es la versión que utiliza solo datos estáticos, sin Room ni ninguna otra fuente externa.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="keyword">import</span> <span class="type">android.os.Bundle</span>;
+<span class="keyword">import</span> <span class="type">android.util.Log</span>; <span class="comment">// Se mantiene para posibles depuraciones</span>
+
+<span class="keyword">import</span> <span class="type">androidx.activity.EdgeToEdge</span>;
+<span class="keyword">import</span> <span class="type">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.graphics.Insets</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.ViewCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.core.view.WindowInsetsCompat</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.LinearLayoutManager</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.RecyclerView</span>;
+
+<span class="keyword">import</span> <span class="type">java.util.ArrayList</span>;
+<span class="keyword">import</span> <span class="type">java.util.List</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">MainActivity</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span></span> {
+    <span class="type">RecyclerView</span> recyclerView;
+    <span class="type">RecyclerAdapter</span> recyclerAdapter;
+    <span class="type">List</span><<span class="type">Pelicula</span>> listaPeliculas; <span class="comment">// La lista de películas que se cargará estáticamente</span>
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="type">EdgeToEdge</span>.<span class="method">enable</span>(<span class="keyword">this</span>);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main);
+        <span class="type">ViewCompat</span>.<span class="method">setOnApplyWindowInsetsListener</span>(<span class="method">findViewById</span>(<span class="type">R</span>.id.main), (v, insets) -> {
+            <span class="type">Insets</span> systemBars = insets.<span class="method">getInsets</span>(<span class="type">WindowInsetsCompat</span>.<span class="type">Type</span>.<span class="method">systemBars</span>());
+            v.<span class="method">setPadding</span>(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            <span class="keyword">return</span> insets;
+        });
+
+        <span class="comment">// 1. Inicialización de la lista de películas con datos estáticos</span>
+        listaPeliculas = <span class="keyword">new</span> <span class="type">ArrayList</span><>();
+        listaPeliculas.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"La Momia"</span>, <span class="string">"1999"</span>, <span class="type">R</span>.drawable.momia));
+        listaPeliculas.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"Harry Potter y el Caliz de Fuego"</span>,<span class="string">"2005"</span>,<span class="type">R</span>.drawable.hp));
+        listaPeliculas.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"El señor de los anillos"</span>,<span class="string">"2001"</span>,<span class="type">R</span>.drawable.anillos));
+        listaPeliculas.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"Avengers Endgame"</span>, <span class="string">"2019"</span>, <span class="type">R</span>.drawable.avengers));
+        listaPeliculas.<span class="method">add</span>(<span class="keyword">new</span> <span class="type">Pelicula</span>(<span class="string">"Midsommar"</span>,<span class="string">"2019"</span>,<span class="type">R</span>.drawable.midsommar));
+        <span class="comment">// NOTA: Los recursos R.drawable.momia, R.drawable.hp, etc., deben existir en tu proyecto Android (en la carpeta res/drawable)</span>
+
+        <span class="comment">// 2. Configuración del RecyclerView</span>
+        recyclerView = <span class="method">findViewById</span>(<span class="type">R</span>.id.miVista); <span class="comment">// Referencia al RecyclerView en el layout</span>
+        recyclerAdapter = <span class="keyword">new</span> <span class="type">RecyclerAdapter</span>(listaPeliculas); <span class="comment">// Crea el adaptador con la lista estática</span>
+
+        recyclerView.<span class="method">setLayoutManager</span>(<span class="keyword">new</span> <span class="type">LinearLayoutManager</span>(<span class="keyword">this</span>)); <span class="comment">// Define un LayoutManager lineal (vertical por defecto)</span>
+        recyclerView.<span class="method">setAdapter</span>(recyclerAdapter); <span class="comment">// Asigna el adaptador al RecyclerView</span>
+    }
+}</code></pre>
+    </div>
+
+    <h3>2. Pelicula (Modelo de Datos)</h3>
+    <p>
+        Esta es una clase POJO (Plain Old Java Object) que representa el modelo de datos para cada película.
+        Contiene propiedades para el título, el año y un ID de recurso de imagen para el póster.
+        Esta clase es independiente de Room Database cuando se usa con listas estáticas,
+        pero podría ser extendida para su uso con Room (como se ve en el ejemplo `room.html`).
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">Pelicula</span></span> {
+    <span class="keyword">private</span> <span class="type">String</span> titulo;
+    <span class="keyword">private</span> <span class="type">String</span> ahno;
+    <span class="keyword">private</span> <span class="keyword">int</span> poster; <span class="comment">// Almacena el ID del recurso drawable (ej. R.drawable.momia)</span>
+
+    <span class="comment">// Constructor para inicializar una Pelicula</span>
+    <span class="keyword">public</span> <span class="method">Pelicula</span>(<span class="type">String</span> titulo, <span class="type">String</span> ahno, <span class="keyword">int</span> poster) {
+        <span class="keyword">this</span>.titulo = titulo;
+        <span class="keyword">this</span>.ahno = ahno;
+        <span class="keyword">this</span>.poster = poster;
+    }
+
+    <span class="comment">// Métodos Getter y Setter</span>
+    <span class="keyword">public</span> <span class="type">String</span> <span class="method">getTitulo</span>() {
+        <span class="keyword">return</span> titulo;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setTitulo</span>(<span class="type">String</span> titulo) {
+        <span class="keyword">this</span>.titulo = titulo;
+    }
+
+    <span class="keyword">public</span> <span class="type">String</span> <span class="method">getAhno</span>() {
+        <span class="keyword">return</span> ahno;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setAhno</span>(<span class="type">String</span> ahno) {
+        <span class="keyword">this</span>.ahno = ahno;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">int</span> <span class="method">getPoster</span>() {
+        <span class="keyword">return</span> poster;
+    }
+
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">setPoster</span>(<span class="keyword">int</span> poster) {
+        <span class="keyword">this</span>.poster = poster;
+    }
+}</code></pre>
+    </div>
+
+    <h3>3. RecyclerAdapter (Adaptador para RecyclerView)</h3>
+    <p>
+        El `RecyclerAdapter` actúa como un puente entre la lista de objetos `Pelicula` y el `RecyclerView`.
+        Es responsable de:
+        <ul>
+            <li>**`onCreateViewHolder`**: Inflar el layout de un solo ítem (`lista_items.xml`) para crear una nueva vista.</li>
+            <li>**`onBindViewHolder`**: Tomar un objeto `Pelicula` de la lista y poblar los datos (título, año, imagen) en las vistas de un `ViewHolder` reciclado.</li>
+            <li>**`getItemCount`**: Devolver el número total de ítems en la lista.</li>
+        </ul>
+        También incluye un `OnClickListener` básico para mostrar un `Toast` al tocar una película.
+    </p>
+    <div class="code-container">
+        <pre><code><span class="keyword">package</span> <span class="type">edu.pe.udh.apprecycler</span>;
+
+<span class="keyword">import</span> <span class="type">android.annotation.SuppressLint</span>;
+<span class="keyword">import</span> <span class="type">android.content.res.Resources</span>;
+<span class="keyword">import</span> <span class="type">android.graphics.drawable.Drawable</span>;
+<span class="keyword">import</span> <span class="type">android.util.Log</span>;
+<span class="keyword">import</span> <span class="type">android.view.LayoutInflater</span>;
+<span class="keyword">import</span> <span class="type">android.view.View</span>;
+<span class="keyword">import</span> <span class="type">android.view.ViewGroup</span>;
+<span class="keyword">import</span> <span class="type">android.widget.ImageView</span>;
+<span class="keyword">import</span> <span class="type">android.widget.TextView</span>;
+<span class="keyword">import</span> <span class="type">android.widget.Toast</span>;
+
+<span class="keyword">import</span> <span class="type">androidx.annotation.NonNull</span>;
+<span class="keyword">import</span> <span class="type">androidx.recyclerview.widget.RecyclerView</span>;
+
+<span class="keyword">import</span> <span class="type">java.util.List</span>;
+
+<span class="class-declaration-highlight"><span class="keyword">public</span> <span class="keyword">class</span> <span class="type">RecyclerAdapter</span> <span class="keyword">extends</span> <span class="type">RecyclerView.Adapter</span><<span class="type">RecyclerAdapter.ViewHolder</span>></span> {
+
+    <span class="keyword">int</span> i = <span class="number">0</span>; <span class="comment">// Variable para depuración, para ver cuántas veces se crea un ViewHolder</span>
+    <span class="type">List</span><<span class="type">Pelicula</span>> listaPeliculas; <span class="comment">// La lista de datos que el adaptador mostrará</span>
+
+    <span class="comment">// Constructor del adaptador, recibe la lista de películas</span>
+    <span class="keyword">public</span> <span class="method">RecyclerAdapter</span>(<span class="type">List</span><<span class="type">Pelicula</span>> listaPeliculas) {
+        <span class="keyword">this</span>.listaPeliculas = listaPeliculas;
+    }
+
+    <span class="comment">// Este método es llamado cuando RecyclerView necesita un nuevo ViewHolder para representar un ítem.</span>
+    <span class="comment">// Infla el layout de un ítem individual (lista_items.xml).</span>
+    <span class="annotation">@NonNull</span>
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="type">ViewHolder</span> <span class="method">onCreateViewHolder</span>(<span class="annotation">@NonNull</span> <span class="type">ViewGroup</span> parent, <span class="keyword">int</span> viewType) {
+        <span class="type">Log</span>.<span class="method">i</span>(<span class="string">"RecyclerView"</span>, <span class="string">"Elemento:"</span> + i++); <span class="comment">// Para observar la creación de ViewHolders</span>
+
+        <span class="type">LayoutInflater</span> layoutInflater = <span class="type">LayoutInflater</span>.<span class="method">from</span>(parent.<span class="method">getContext</span>());
+        <span class="type">View</span> view = layoutInflater.<span class="method">inflate</span>(<span class="type">R</span>.layout.lista_items, parent, <span class="keyword">false</span>); <span class="comment">// Infla el layout del ítem</span>
+        <span class="type">ViewHolder</span> viewHolder = <span class="keyword">new</span> <span class="type">ViewHolder</span>(view); <span class="comment">// Crea y devuelve un nuevo ViewHolder</span>
+        <span class="keyword">return</span> viewHolder;
+    }
+
+    <span class="comment">// Este método asocia los datos con las vistas de un ViewHolder.</span>
+    <span class="comment">// Es llamado para actualizar el contenido de un ViewHolder dado su posición en la lista.</span>
+    <span class="annotation">@SuppressLint</span>(<span class="string">"UseCompatLoadingForDrawables"</span>) <span class="comment">// Suprime advertencia sobre getDrawable, aunque en API 21+ es seguro.</span>
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">onBindViewHolder</span>(<span class="annotation">@NonNull</span> <span class="type">ViewHolder</span> holder, <span class="keyword">int</span> position) {
+        <span class="comment">// Obtiene el objeto Pelicula de la posición actual</span>
+        <span class="type">Pelicula</span> peliculaActual = listaPeliculas.<span class="method">get</span>(position);
+
+        <span class="comment">// Establece el texto y la imagen en las vistas del ViewHolder</span>
+        holder.textView1.<span class="method">setText</span>(peliculaActual.<span class="method">getTitulo</span>());
+        holder.textView2.<span class="method">setText</span>(peliculaActual.<span class="method">getAhno</span>());
+        
+        <span class="comment">// Carga la imagen drawable por su ID de recurso</span>
+        <span class="keyword">int</span> posterId = peliculaActual.<span class="method">getPoster</span>();
+        <span class="type">Drawable</span> posterDrawable = holder.imageView.<span class="method">getResources</span>().<span class="method">getDrawable</span>(posterId);
+        holder.imageView.<span class="method">setImageDrawable</span>(posterDrawable);
+    }
+
+    <span class="comment">// Devuelve el número total de ítems en la lista de datos.</span>
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> <span class="keyword">int</span> <span class="method">getItemCount</span>() {
+        <span class="keyword">return</span> listaPeliculas.<span class="method">size</span>();
+    }
+
+    <span class="comment">// Clase interna ViewHolder: Contiene las referencias a las vistas de un ítem individual.</span>
+    <span class="comment">// Esto ayuda a evitar búsquedas findViewById() costosas repetidamente.</span>
+    <span class="keyword">class</span> <span class="type">ViewHolder</span> <span class="keyword">extends</span> <span class="type">RecyclerView.ViewHolder</span> <span class="keyword">implements</span> <span class="type">View.OnClickListener</span> {
+
+        <span class="type">ImageView</span> imageView;
+        <span class="type">TextView</span> textView1;
+        <span class="type">TextView</span> textView2;
+
+        <span class="comment">// Constructor del ViewHolder, se usa para inicializar las vistas del ítem</span>
+        <span class="keyword">public</span> <span class="method">ViewHolder</span>(<span class="annotation">@NonNull</span> <span class="type">View</span> itemView) {
+            <span class="keyword">super</span>(itemView);
+            imageView = itemView.<span class="method">findViewById</span>(<span class="type">R</span>.id.imageView);
+            textView1 = itemView.<span class="method">findViewById</span>(<span class="type">R</span>.id.textView1);
+            textView2 = itemView.<span class="method">findViewById</span>(<span class="type">R</span>.id.textView2);
+
+            <span class="comment">// Establece un Listener de clic para el ítem completo</span>
+            itemView.<span class="method">setOnClickListener</span>(<span class="keyword">this</span>);
+        }
+
+        <span class="comment">// Manejador del clic en el ítem del RecyclerView</span>
+        <span class="annotation">@Override</span>
+        <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">onClick</span>(<span class="type">View</span> v) {
+            <span class="comment">// Muestra un Toast con el título de la película clicada</span>
+            <span class="type">Toast</span>.<span class="method">makeText</span>(v.<span class="method">getContext</span>(), listaPeliculas.<span class="method">get</span>(<span class="method">getAbsoluteAdapterPosition</span>()).<span class="method">getTitulo</span>(), <span class="type">Toast</span>.LENGTH_LONG).<span class="method">show</span>();
+            <span class="comment">// Aquí podrías iniciar una nueva Activity pasando los datos de la película, por ejemplo:</span>
+            <span class="comment">// Intent intent = new Intent(v.getContext(), DetailActivity.class);</span>
+            <span class="comment">// intent.putExtra("movie_title", listaPeliculas.get(getAbsoluteAdapterPosition()).getTitulo());</span>
+            <span class="comment">// v.getContext().startActivity(intent);</span>
+        }
+    }
+}</code></pre>
+    </div>
+
+    <h3>4. Layout: activity_main.xml (para la MainActivity con RecyclerView)</h3>
+    <p>
+        Este es el archivo XML de layout para la `MainActivity`. Su único propósito es contener el `RecyclerView`,
+        que ocupará toda la pantalla para mostrar la lista de películas.
+    </p>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span> <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/main"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">tools:context</span>=<span class="string">".MainActivity"</span>>
+
+    <<span class="xml-tag">androidx.recyclerview.widget.RecyclerView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/miVista"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"match_parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span> />
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
+    </div>
+
+    <h3>5. Layout: lista_items.xml (Layout de cada ítem del RecyclerView)</h3>
+    <p>
+        Este archivo XML define cómo se verá cada elemento individual de la lista de películas.
+        Incluye un `ImageView` para el póster de la película y dos `TextView` para mostrar
+        el título y el año de la película.
+    </p>
+    <div class="code-container">
+        <pre><code><<span class="xml-tag">?xml version="1.0" encoding="utf-8"?</span>>
+<<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>
+    <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/list_item"</span>
+    <span class="xml-attr-name">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="xml-attr-name">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="xml-attr-name">xmlns:tools</span>=<span class="string">"http://schemas.android.com/tools"</span>
+    <span class="xml-attr-name">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>>
+
+    <<span class="xml-tag">ImageView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/imageView"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"60dp"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"70dp"</span>
+        <span class="xml-attr-name">android:layout_marginStart</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:layout_marginBottom</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">app:layout_constraintBottom_toBottomOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:srcCompat</span>=<span class="string">"@android:mipmap/sym_def_app_icon"</span> />
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/textView1"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_marginStart</span>=<span class="string">"16dp"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:layout_marginEnd</span>=<span class="string">"20dp"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"TextView"</span>
+        <span class="xml-attr-name">android:textSize</span>=<span class="string">"20sp"</span>
+        <span class="xml-attr-name">app:layout_constraintEnd_toEndOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintHorizontal_bias</span>=<span class="string">"0.972"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toTopOf</span>=<span class="string">"parent"</span> />
+
+    <<span class="xml-tag">TextView</span>
+        <span class="xml-attr-name">android:id</span>=<span class="string">"@+id/textView2"</span>
+        <span class="xml-attr-name">android:layout_width</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="xml-attr-name">android:layout_marginStart</span>=<span class="string">"88dp"</span>
+        <span class="xml-attr-name">android:layout_marginTop</span>=<span class="string">"16dp"</span>
+        <span class="xml-attr-name">android:text</span>=<span class="string">"TextView"</span>
+        <span class="xml-attr-name">app:layout_constraintStart_toStartOf</span>=<span class="string">"parent"</span>
+        <span class="xml-attr-name">app:layout_constraintTop_toBottomOf</span>=<span class="string">"@+id/textView1"</span> />
+</<span class="xml-tag">androidx.constraintlayout.widget.ConstraintLayout</span>></code></pre>
+    </div>
+
+</body>
+</html>
