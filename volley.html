@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uso de Volley para API REST</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; margin: 20px; background-color: #f9f9f9; color: #333; }
+        .back-button { display: inline-block; padding: 10px 15px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px; font-weight: bold; transition: background-color 0.3s ease; }
+        .back-button:hover { background-color: #5a6268; }
+        .code-container { background-color: #2d2d2d; color: #cccccc; padding: 15px; border-radius: 8px; overflow-x: auto; font-family: "Courier New", Courier, monospace; font-size: 0.9em; margin-bottom: 20px; }
+        .code-container pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+        .keyword { color: #cc7832; font-weight: bold; } .type { color: #6897bb; } .string { color: #6a8759; } .comment { color: #808080; font-style: italic; } .method { color: #ffc66d; } .number { color: #6897bb; } .annotation { color: #bbb529; }
+        h2 { border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 40px; } h3 { border-bottom: 1px solid #eee; padding-bottom: 3px; margin-top: 25px; }
+        .intro-text { margin-bottom: 15px; font-style: italic; color: #555; }
+    </style>
+</head>
+<body>
+    <a href="documentacion_android.html" class="back-button">← Volver a la Documentación Principal</a>
+    <h1>Consumir APIs REST con Volley</h1>
+    <p class="intro-text">
+        <strong>Volley</strong> es una librería de red para Android que facilita y acelera la realización de peticiones a servicios web. Es ideal para operaciones comunes como obtener datos JSON o enviar formularios, ya que maneja automáticamente las operaciones en hilos secundarios y el almacenamiento en caché.
+    </p>
+
+    <h2>Paso 1: Añadir la Dependencia</h2>
+    <p>Para usar Volley, primero debes añadirla a tu archivo <code>build.gradle (Module: app)</code>.</p>
+    <div class="code-container"><pre><code>dependencies {
+    ...
+    implementation 'com.android.volley:volley:1.2.1'
+}</code></pre></div>
+
+    <h2>Paso 2: Realizar una Petición GET</h2>
+    <p>
+        Una petición GET se utiliza para solicitar y recibir datos de un servidor. Es la operación más común. Usaremos el API pública de pruebas <strong>JSONPlaceholder</strong>.
+    </p>
+    <h3>Ejemplo: Obtener un Post</h3>
+    <p>Este código obtiene un solo post en formato JSON y muestra su título en un TextView.</p>
+    
+    <h4>MainActivity.java (Ejemplo GET)</h4>
+    <div class="code-container"><pre><code><span class="keyword">public class</span> <span class="type">MainActivity</span> <span class="keyword">extends</span> <span class="type">AppCompatActivity</span> {
+    <span class="type">TextView</span> textViewResultado;
+    <span class="type">RequestQueue</span> queue;
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected void</span> <span class="method">onCreate</span>(<span class="type">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="method">onCreate</span>(savedInstanceState);
+        <span class="method">setContentView</span>(<span class="type">R</span>.layout.activity_main);
+        
+        textViewResultado = <span class="method">findViewById</span>(<span class="type">R</span>.id.textViewResultado);
+        <span class="type">Button</span> botonGet = <span class="method">findViewById</span>(<span class="type">R</span>.id.botonGet);
+        
+        <span class="comment">// 1. Inicializar la cola de peticiones</span>
+        queue = <span class="type">Volley</span>.<span class="method">newRequestQueue</span>(<span class="keyword">this</span>);
+        
+        botonGet.<span class="method">setOnClickListener</span>(v -> <span class="method">hacerPeticionGet</span>());
+    }
+    
+    <span class="keyword">private void</span> <span class="method">hacerPeticionGet</span>() {
+        <span class="type">String</span> url = <span class="string">"https://jsonplaceholder.typicode.com/posts/1"</span>;
+        
+        <span class="comment">// 2. Crear la petición</span>
+        <span class="type">JsonObjectRequest</span> jsonObjectRequest = <span class="keyword">new</span> <span class="type">JsonObjectRequest</span>(
+            <span class="type">Request</span>.<span class="type">Method</span>.GET, url, <span class="keyword">null</span>,
+            response -> {
+                <span class="comment">// 3. Éxito: Procesar la respuesta JSON</span>
+                <span class="keyword">try</span> {
+                    <span class="type">String</span> title = response.<span class="method">getString</span>(<span class="string">"title"</span>);
+                    textViewResultado.<span class="method">setText</span>(<span class="string">"Título: "</span> + title);
+                } <span class="keyword">catch</span> (<span class="type">JSONException</span> e) {
+                    textViewResultado.<span class="method">setText</span>(<span class="string">"Error al parsear JSON"</span>);
+                }
+            },
+            error -> {
+                <span class="comment">// 4. Error: Mostrar el error</span>
+                textViewResultado.<span class="method">setText</span>(<span class="string">"Error: "</span> + error.<span class="method">getMessage</span>());
+            }
+        );
+        
+        <span class="comment">// 5. Añadir la petición a la cola para que se ejecute</span>
+        queue.<span class="method">add</span>(jsonObjectRequest);
+    }
+}</code></pre></div>
+
+    <h2>Paso 3: Realizar una Petición POST</h2>
+    <p>Una petición POST se utiliza para enviar datos al servidor, por ejemplo, para crear un nuevo recurso (como un nuevo post o un nuevo usuario).</p>
+    <h3>Ejemplo: Crear un Post</h3>
+    <p>Este código envía un título y un cuerpo para crear un nuevo post. El servidor responderá con el objeto creado y su nuevo ID.</p>
+    
+    <h4>MainActivity.java (Ejemplo POST)</h4>
+    <div class="code-container"><pre><code><span class="keyword">private void</span> <span class="method">hacerPeticionPost</span>() {
+    <span class="type">String</span> url = <span class="string">"https://jsonplaceholder.typicode.com/posts"</span>;
+
+    <span class="type">StringRequest</span> postRequest = <span class="keyword">new</span> <span class="type">StringRequest</span>(<span class="type">Request</span>.<span class="type">Method</span>.POST, url,
+        response -> {
+            <span class="comment">// Éxito: La respuesta es el objeto creado en formato String</span>
+            textViewResultado.<span class="method">setText</span>(<span class="string">"Respuesta del POST: \n"</span> + response);
+        },
+        error -> {
+            <span class="comment">// Error</span>
+            textViewResultado.<span class="method">setText</span>(<span class="string">"Error en POST: "</span> + error.<span class="method">getMessage</span>());
+        }
+    ) {
+        <span class="annotation">@Override</span>
+        <span class="keyword">protected</span> <span class="type">Map<String, String></span> <span class="method">getParams</span>() {
+            <span class="comment">// Aquí se definen los datos a enviar</span>
+            <span class="type">Map<String, String></span> params = <span class="keyword">new</span> <span class="type">HashMap<></span>();
+            params.<span class="method">put</span>(<span class="string">"title"</span>, <span class="string">"Mi Título"</span>);
+            params.<span class="method">put</span>(<span class="string">"body"</span>, <span class="string">"Este es el cuerpo del post."</span>);
+            params.<span class="method">put</span>(<span class="string">"userId"</span>, <span class="string">"1"</span>);
+            <span class="keyword">return</span> params;
+        }
+    };
+    
+    queue.<span class="method">add</span>(postRequest);
+}</code></pre></div>
+
+</body>
+</html>

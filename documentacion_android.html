@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación Completa de Android</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; margin: 20px; background-color: #f9f9f9; color: #333; scroll-behavior: smooth; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .header-container h1 { margin: 0; flex-grow: 1; }
+        .nav-buttons-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .nav-button { display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; transition: background-color 0.3s ease; white-space: nowrap; }
+        .nav-button:hover { background-color: #0056b3; }
+        .nav-button.volley { background-color: #28a745; }
+        .nav-button.volley:hover { background-color: #218838; }
+        .code-container { background-color: #2d2d2d; color: #cccccc; padding: 15px; border-radius: 8px; overflow-x: auto; font-family: "Courier New", Courier, monospace; font-size: 0.9em; margin-bottom: 20px; }
+        .code-container pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+        .keyword { color: #cc7832; font-weight: bold; } .type { color: #6897bb; } .string { color: #6a8759; } .comment { color: #808080; font-style: italic; } .method { color: #ffc66d; } .number { color: #6897bb; } .annotation { color: #bbb529; }
+        .class-declaration-highlight { background-color: #4a4a4a; border: 1px solid #666666; padding: 5px 8px; display: inline-block; border-radius: 4px; margin-bottom: 10px; }
+        h2 { border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-top: 40px; } h3 { border-bottom: 1px solid #eee; padding-bottom: 3px; margin-top: 25px; }
+        .intro-text { margin-bottom: 15px; font-style: italic; color: #555; }
+        .xml-tag { color: #e83e8c; font-weight: bold; } .xml-attr-name { color: #6f42c1; }
+        .important-note { background-color: #fff3cd; border-left: 5px solid #ffc107; padding: 10px 15px; margin-bottom: 20px; color: #856404; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1>Documentación de Desarrollo Android</h1>
+        <div class="nav-buttons-group">
+            <a href="#intents" class="nav-button">Intents</a>
+            <a href="#recyclerview" class="nav-button">RecyclerView</a>
+            <a href="#room" class="nav-button">Room DB</a>
+            <a href="volley.html" class="nav-button volley">Ir a Volley (API REST)</a>
+        </div>
+    </div>
+
+    <section id="intents">
+        <h2>Intents, Activities y Flujo de Datos</h2>
+        <p class="intro-text">
+            Los <strong>Intents</strong> son el mecanismo fundamental en Android para la comunicación entre componentes, especialmente para iniciar nuevas Activities (pantallas). Permiten no solo navegar de una pantalla a otra, sino también pasar datos entre ellas utilizando "extras".
+        </p>
+        <h3>Ejemplo: Flujo de Datos entre 3 Activities</h3>
+        <p>Este ejemplo muestra cómo se pasa información (nombre y edad) desde una Activity principal a una segunda, y luego solo la edad a una tercera para su procesamiento.</p>
+        <h4>MainActivity.java</h4>
+        <div class="code-container"><pre><code>...código de MainActivity para enviar datos...</code></pre></div>
+        <h4>MainActivity2.java</h4>
+        <div class="code-container"><pre><code>...código de MainActivity2 para recibir y reenviar datos...</code></pre></div>
+        <h4>MainActivity3.java</h4>
+        <div class="code-container"><pre><code>...código de MainActivity3 para procesar el dato final...</code></pre></div>
+    </section>
+
+    <section id="recyclerview">
+        <h2>RecyclerView para Listas Eficientes</h2>
+        <p class="intro-text">
+            El <code>RecyclerView</code> es el componente esencial para mostrar listas de datos grandes de manera eficiente. Reutiliza las vistas de los elementos que salen de la pantalla para mostrar los nuevos que entran, evitando la creación innecesaria de objetos y mejorando drásticamente el rendimiento.
+        </p>
+        <h3>Componentes Clave</h3>
+        <ul>
+            <li><b>Adapter:</b> Conecta la fuente de datos (una lista de objetos) con el RecyclerView.</li>
+            <li><b>ViewHolder:</b> Mantiene las referencias a las vistas de un solo ítem (ej. un TextView, un ImageView).</li>
+            <li><b>LayoutManager:</b> Decide cómo se posicionan los ítems (lineal, en cuadrícula, etc.).</li>
+        </ul>
+        <h3>Ejemplo: Lista de Películas</h3>
+        <h4>RecyclerAdapter.java</h4>
+        <div class="code-container"><pre><code>...código del RecyclerAdapter para las películas...</code></pre></div>
+        <h4>lista_items.xml (Layout de cada ítem)</h4>
+        <div class="code-container"><pre><code>...código XML para el layout de un solo ítem de la lista...</code></pre></div>
+    </section>
+
+    <section id="room">
+        <h2>Room Database para Persistencia Local</h2>
+        <p class="intro-text">
+            <strong>Room</strong> es una capa de abstracción sobre SQLite que simplifica enormemente el trabajo con bases de datos locales en Android. Ofrece seguridad en tiempo de compilación para las consultas SQL y reduce la cantidad de código repetitivo.
+        </p>
+        <h3>Componentes Clave de Room</h3>
+        <ul>
+            <li><b>Entity (@Entity):</b> Una clase que representa una tabla en la base de datos.</li>
+            <li><b>DAO (@Dao):</b> Una interfaz que define los métodos para acceder a la base de datos (consultar, insertar, etc.).</li>
+            <li><b>Database (@Database):</b> La clase principal que conecta las entidades y los DAOs, y construye la base de datos.</li>
+        </ul>
+        
+        <h3>Ejemplo 1: Base de Datos de Películas (Más Completo)</h3>
+        <p>Este ejemplo muestra una implementación con un modelo de datos `Pelicula`.</p>
+        <h4>Pelicula.java (Entity)</h4>
+        <div class="code-container"><pre><code>...código de la entidad Pelicula...</code></pre></div>
+        <h4>PeliculaDao.java (DAO)</h4>
+        <div class="code-container"><pre><code>...código del DAO para Pelicula...</code></pre></div>
+        <h4>AppDatabase.java</h4>
+        <div class="code-container"><pre><code>...código de la clase AppDatabase...</code></pre></div>
+
+        <hr style="margin: 40px 0;">
+
+        <h3>Ejemplo 2: Lista de Tareas (Más Sencillo y Entendible)</h3>
+        <p class="intro-text">
+            Para entender el concepto de Room de la forma más simple posible, imaginemos una aplicación de "Lista de Tareas". Solo necesitamos una tabla para guardar las tareas.
+        </p>
+        <h4>Paso A: La Entidad `Tarea`</h4>
+        <p>Definimos cómo se verá una tarea en la base de datos. Cada tarea tendrá un ID único, un título y un booleano para saber si está completada.</p>
+        <div class="code-container"><pre><code><span class="annotation">@Entity(tableName = "tareas")</span>
+<span class="keyword">public class</span> <span class="type">Tarea</span> {
+    <span class="annotation">@PrimaryKey(autoGenerate = true)</span>
+    <span class="keyword">public int</span> id;
+    
+    <span class="keyword">public String</span> titulo;
+    
+    <span class="keyword">public boolean</span> completada;
+}</code></pre></div>
+
+        <h4>Paso B: El DAO `TareaDao`</h4>
+        <p>Definimos las acciones que podemos realizar: obtener todas las tareas, insertar una nueva y eliminar una.</p>
+        <div class="code-container"><pre><code><span class="annotation">@Dao</span>
+<span class="keyword">public interface</span> <span class="type">TareaDao</span> {
+    <span class="annotation">@Query("SELECT * FROM tareas")</span>
+    <span class="type">List<Tarea></span> <span class="method">getAll</span>();
+    
+    <span class="annotation">@Insert</span>
+    <span class="keyword">void</span> <span class="method">insert</span>(<span class="type">Tarea</span> tarea);
+    
+    <span class="annotation">@Delete</span>
+    <span class="keyword">void</span> <span class="method">delete</span>(<span class="type">Tarea</span> tarea);
+}</code></pre></div>
+
+        <h4>Paso C: La Base de Datos `MiBaseDeDatos`</h4>
+        <p>Juntamos todo. Esta clase le dice a Room que nuestra base de datos contendrá una tabla de `tareas` y que usará `TareaDao` para acceder a ella.</p>
+        <div class="code-container"><pre><code><span class="annotation">@Database(entities = {Tarea.class}, version = 1)</span>
+<span class="keyword">public abstract class</span> <span class="type">MiBaseDeDatos</span> <span class="keyword">extends</span> <span class="type">RoomDatabase</span> {
+    <span class="keyword">public abstract</span> <span class="type">TareaDao</span> <span class="method">tareaDao</span>();
+}</code></pre></div>
+        <p>Con estos tres componentes, ya tienes una base de datos local completamente funcional y segura para gestionar una lista de tareas.</p>
+    </section>
+
+    <section id="proyectos-adicionales">
+        <h2>Proyectos Adicionales</h2>
+        <h3>Proyecto: Calculadora de Serie Fibonacci</h3>
+        <p class="intro-text">
+            Esta aplicación demuestra el uso de dos Activities para un flujo de datos sencillo...
+        </p>
+        <div class="code-container"><pre><code>...código del proyecto Fibonacci...</code></pre></div>
+
+        <h3>Proyecto: Calculadora Aritmética Básica</h3>
+        <p class="intro-text">
+            Esta aplicación implementa las cuatro operaciones aritméticas básicas...
+        </p>
+        <div class="code-container"><pre><code>...código del proyecto Calculadora...</code></pre></div>
+    </section>
+
+</body>
+</html>
